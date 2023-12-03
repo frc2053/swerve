@@ -1,0 +1,170 @@
+plugins {
+    id "cpp"
+    id "google-test-test-suite"
+    id "edu.wpi.first.GradleRIO" version "2024.1.1-beta-3"
+}
+
+wpi.maven.useLocal = false
+wpi.maven.useFrcMavenLocalDevelopment = true
+wpi.versions.wpilibVersion = '2024.424242.+'
+wpi.versions.wpimathVersion = '2024.424242.+'
+
+// Define my targets (RoboRIO) and artifacts (deployable files)
+// This is added by GradleRIO's backing project DeployUtils.
+deploy {
+    targets {
+        roborio(getTargetTypeClass('RoboRIO')) {
+            // Team number is loaded either from the .wpilib/wpilib_preferences.json
+            // or from command line. If not found an exception will be thrown.
+            // You can use getTeamOrDefault(team) instead of getTeamNumber if you
+            // want to store a team number in this file.
+            team = project.frc.getTeamNumber()
+            debug = project.frc.getDebugOrDefault(false)
+
+            artifacts {
+                // First part is artifact name, 2nd is artifact type
+                // getTargetTypeClass is a shortcut to get the class type using a string
+
+                frcCpp(getArtifactTypeClass('FRCNativeArtifact')) {
+                }
+
+                // Static files artifact
+                frcStaticFileDeploy(getArtifactTypeClass('FileTreeArtifact')) {
+                    files = project.fileTree('src/main/deploy')
+                    directory = '/home/lvuser/deploy'
+                }
+            }
+        }
+    }
+}
+
+def deployArtifact = deploy.targets.roborio.artifacts.frcCpp
+
+// Set this to true to enable desktop support.
+def includeDesktopSupport = true
+
+// Set to true to run simulation in debug mode
+wpi.cpp.debugSimulation = false
+
+// Default enable simgui
+wpi.sim.addGui().defaultEnabled = true
+// Enable DS but not by default
+wpi.sim.addDriverstation()
+
+model {
+    components {
+        frcUserProgram(NativeExecutableSpec) {
+            targetPlatform wpi.platforms.roborio
+            if (includeDesktopSupport) {
+                targetPlatform wpi.platforms.desktop
+            }
+
+            sources.cpp {
+                source {
+                    srcDir 'src/main/cpp'
+                    include '**/*.cpp', '**/*.cc'
+                }
+                exportedHeaders {
+                    srcDir 'src/main/include'
+                }
+            }
+
+            // Set deploy task to deploy this component
+            deployArtifact.component = it
+
+            // Enable run tasks for this component
+            wpi.cpp.enableExternalTasks(it)
+
+            // Enable simulation for this component
+            wpi.sim.enable(it)
+            // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
+            wpi.cpp.vendor.cpp(it)
+            wpi.cpp.deps.wpilib(it)
+        }
+    }
+    testSuites {
+        frcUserProgramTest(GoogleTestTestSuiteSpec) {
+            testing $.components.frcUserProgram
+
+            sources.cpp {
+                source {
+                    srcDir 'src/test/cpp'
+                    include '**/*.cpp'
+                }
+            }
+
+            // Enable run tasks for this component
+            wpi.cpp.enableExternalTasks(it)
+
+            wpi.cpp.vendor.cpp(it)
+            wpi.cpp.deps.wpilib(it)
+            wpi.cpp.deps.googleTest(it)
+        }
+    }
+}
+
+tasks.register("writeBranchName") {
+   // Define an output stream to write to instead of terminal
+   def stdout = new ByteArrayOutputStream()
+
+   // Execute the git command
+   exec {
+      commandLine "git", "rev-parse", "--abbrev-ref", "HEAD"
+      // Write to the output stream instead of terminal
+      standardOutput = stdout
+   }
+
+   // Parse the output into a string
+   def branch = stdout.toString().trim()
+
+   // Create a new file
+   new File(
+      // Join project directory and deploy directory
+      projectDir.toString() + "/src/main/deploy",
+      // File name to write to
+      "branch.txt"
+   ).text = branch // Set the contents of the file to the variable branch
+}
+
+tasks.register("writeCommitHash") {
+   def stdout = new ByteArrayOutputStream()
+
+   exec {
+     commandLine "git", "rev-parse", "--short", "HEAD"
+     standardOutput = stdout
+   }
+
+   def commitHash = stdout.toString().trim()
+
+   new File(
+      projectDir.toString() + "/src/main/deploy",
+      "commit.txt"
+   ).text = commitHash
+}
+
+deploy.targets.roborio.artifacts.frcStaticFileDeploy.dependsOn(writeCommitHash)
+deploy.targets.roborio.artifacts.frcStaticFileDeploy.dependsOn(writeBranchName)
+
+if (project.hasProperty("asan")) {
+  nativeUtils.platformConfigs.named("linuxx86-64").configure {
+    it.cppCompiler.args.add('-g3')
+    it.cppCompiler.args.add('-fsanitize=address')
+    it.linker.args.add('-fsanitize=address')
+  }
+}
+
+if (project.hasProperty("tsan")) {
+  nativeUtils.platformConfigs.named("linuxx86-64").configure {
+    it.cppCompiler.args.add('-g3')
+    it.cppCompiler.args.add('-fsanitize=thread')
+    it.linker.args.add('-fsanitize=thread')
+  }
+}
+
+if (project.hasProperty("ubsan")) {
+  nativeUtils.platformConfigs.named("linuxx86-64").configure {
+    it.cppCompiler.args.add('-g3')
+    it.cppCompiler.args.add('-fsanitize=undefined')
+    it.linker.args.add('-fsanitize=undefined')
+  }
+}

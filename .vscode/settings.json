@@ -1,0 +1,36 @@
+{
+  "java.configuration.updateBuildConfiguration": "disabled",
+  "java.import.gradle.enabled": false,
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "bin/": true,
+    "**/.classpath": true,
+    "**/.project": true,
+    "**/.settings": true,
+    "**/.factorypath": true,
+    "**/*~": true
+  },
+  "C_Cpp.default.configurationProvider": "vscode-wpilib",
+  "python.terminal.activateEnvInCurrentTerminal": true,
+  "python.defaultInterpreterPath": "${workspaceFolder}/venv/Scripts/python.exe",
+  "C_Cpp.autoAddFileAssociations": false,
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": false,
+  "emeraldwalk.runonsave": {
+    "commands": [
+      {
+        "match": "\\.cpp$",
+        "cmd": "${workspaceFolder}/venv/Scripts/wpiformat.exe"
+      },
+      {
+        "match": "\\.h$",
+        "cmd": "${workspaceFolder}/venv/Scripts/wpiformat.exe"
+      }
+    ]
+  }
+}
