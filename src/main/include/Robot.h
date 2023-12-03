@@ -1,18 +1,18 @@
-// Copyright (c) FIRST and other WPILib contributors.
+// Copyright (c) FRC 2053.
 // Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// the MIT License file in the root of this project
 
 #pragma once
-
-#include <optional>
 
 #include <frc/TimedRobot.h>
 #include <frc2/command/CommandPtr.h>
 
+#include <optional>
+
 #include "RobotContainer.h"
 
 class Robot : public frc::TimedRobot {
- public:
+public:
   void RobotInit() override;
   void RobotPeriodic() override;
   void DisabledInit() override;
@@ -28,7 +28,7 @@ class Robot : public frc::TimedRobot {
   void TestPeriodic() override;
   void TestExit() override;
 
- private:
+private:
   std::optional<frc2::CommandPtr> m_autonomousCommand;
 
   RobotContainer m_container;
