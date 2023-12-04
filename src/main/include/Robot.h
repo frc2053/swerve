@@ -9,7 +9,10 @@
 
 #include <optional>
 
+#include "Constants.h"
 #include "RobotContainer.h"
+#include "str/SwerveModule.h"
+#include "units/angular_acceleration.h"
 
 class Robot : public frc::TimedRobot {
 public:
@@ -27,9 +30,23 @@ public:
   void TestInit() override;
   void TestPeriodic() override;
   void TestExit() override;
+  void SimulationPeriodic() override;
 
 private:
   std::optional<frc2::CommandPtr> m_autonomousCommand;
+
+  str::ModuleGains flDriveGains{
+    str::ka_unit_t{0}, str::kv_unit_t{0}, 0_V, 3, 0, 0};
+  str::ModuleGains flSteerGains{
+    str::ka_unit_t{0}, str::kv_unit_t{0}, 0_V, 1, 0, 0};
+
+  str::SwerveModuleConstants flConsts{1, 2, 3, 0, false, false, flDriveGains,
+    flSteerGains, constants::swerve::physical::DRIVE_GEARING,
+    constants::swerve::physical::STEER_GEARING, 400_A, 10_rad_per_s,
+    units::radians_per_second_squared_t{100}, 4_in, 3.5,
+    constants::swerve::physical::MAX_LINEAR_SPEED};
+
+  str::SwerveModule flModule{flConsts};
 
   RobotContainer m_container;
 };
