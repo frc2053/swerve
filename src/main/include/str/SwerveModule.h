@@ -13,6 +13,7 @@
 #include <ctre/phoenix6/CANcoder.hpp>
 #include <ctre/phoenix6/TalonFX.hpp>
 
+#include "Units.h"
 #include "ctre/phoenix/StatusCodes.h"
 #include "ctre/phoenix6/StatusSignal.hpp"
 #include "ctre/phoenix6/controls/MotionMagicVoltage.hpp"
@@ -33,19 +34,9 @@
 
 namespace str {
 
-using kv_unit
-  = units::compound_unit<units::compound_unit<units::volts, units::seconds>,
-    units::inverse<units::meters>>;
-using kv_unit_t = units::unit_t<kv_unit>;
-
-using ka_unit = units::compound_unit<
-  units::compound_unit<units::volts, units::squared<units::seconds>>,
-  units::inverse<units::meters>>;
-using ka_unit_t = units::unit_t<ka_unit>;
-
 struct ModuleGains {
-  ka_unit_t kA{0};
-  kv_unit_t kV{0};
+  units::ka_unit_t kA{0};
+  units::kv_unit_t kV{0};
   units::volt_t kS{0};
   units::scalar_t kP{0};
   units::scalar_t kI{0};
@@ -106,6 +97,7 @@ public:
   void SetDriveVoltage(units::volt_t volts);
 
   std::array<ctre::phoenix6::BaseStatusSignal*, 6> GetSignals();
+  void OptimizeBusSignals();
 
 private:
   ctre::phoenix::StatusCode ConfigureDriveMotor(bool invertDrive,

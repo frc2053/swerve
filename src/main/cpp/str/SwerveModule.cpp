@@ -11,7 +11,6 @@
 #include "frc/geometry/Rotation2d.h"
 #include "frc/kinematics/SwerveModulePosition.h"
 #include "frc/kinematics/SwerveModuleState.h"
-#include "str/Units.h"
 #include "units/angle.h"
 #include "units/angular_velocity.h"
 #include "units/current.h"
@@ -189,6 +188,24 @@ std::array<ctre::phoenix6::BaseStatusSignal*, 6> SwerveModule::GetSignals()
 {
   return {&steerAngleSignal, &steerAngleVelocitySignal, &steerVoltageSignal,
     &drivePositionSignal, &driveVelocitySignal, &driveVoltageSignal};
+}
+
+void SwerveModule::OptimizeBusSignals()
+{
+  auto driveStatus = driveMotor.OptimizeBusUtilization();
+  if (!driveStatus.IsOK()) {
+    frc::DataLogManager::Log(
+      fmt::format("Swerve Drive Motor was unable to optimize its bus signals! "
+                  "Error: {}, More Info: {}",
+        driveStatus.GetName(), driveStatus.GetDescription()));
+  }
+  auto steerStatus = steerMotor.OptimizeBusUtilization();
+  if (!steerStatus.IsOK()) {
+    frc::DataLogManager::Log(
+      fmt::format("Swerve Steer Motor was unable to optimize its bus signals! "
+                  "Error: {}, More Info: {}",
+        steerStatus.GetName(), steerStatus.GetDescription()));
+  }
 }
 
 ctre::phoenix::StatusCode SwerveModule::ConfigureDriveMotor(

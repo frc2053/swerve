@@ -13,6 +13,17 @@
 #include <numbers>
 
 namespace units {
+
+using kv_unit
+  = units::compound_unit<units::compound_unit<units::volts, units::seconds>,
+    units::inverse<units::meters>>;
+using kv_unit_t = units::unit_t<kv_unit>;
+
+using ka_unit = units::compound_unit<
+  units::compound_unit<units::volts, units::squared<units::seconds>>,
+  units::inverse<units::meters>>;
+using ka_unit_t = units::unit_t<ka_unit>;
+
 constexpr units::meter_t ConvertEncoderTicksToDistance(
   int ticks, int encoderResolution, double gearing, units::meter_t wheelRadius)
 {

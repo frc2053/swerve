@@ -13,6 +13,8 @@ void Robot::RobotInit()
 {
   str::DataUtils::SetupDataLogging();
   str::DataUtils::LogGitInfo();
+  AddPeriodic([this] { m_container.GetDrivebaseSubsystem().UpdateOdometry(); },
+    1 / 250_Hz);
 }
 
 void Robot::RobotPeriodic()
@@ -58,10 +60,7 @@ void Robot::TestPeriodic() { }
 
 void Robot::TestExit() { }
 
-void Robot::SimulationPeriodic()
-{
-  flModule.SimulationUpdate(0_m, 0_mps, 0_A, 0_rad, 0_rad_per_s, 0_A);
-}
+void Robot::SimulationPeriodic() { }
 
 #ifndef RUNNING_FRC_TESTS
 int main() { return frc::StartRobot<Robot>(); }

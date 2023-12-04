@@ -6,12 +6,17 @@
 
 #include <frc2/command/CommandPtr.h>
 
+#include "subsystems/DrivebaseSubsystem.h"
+
 class RobotContainer {
 public:
   RobotContainer();
 
   frc2::CommandPtr GetAutonomousCommand();
+  DrivebaseSubsystem& GetDrivebaseSubsystem();
 
 private:
   void ConfigureBindings();
+
+  DrivebaseSubsystem driveSub;
 };
