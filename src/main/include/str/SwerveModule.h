@@ -48,16 +48,6 @@ struct SwerveModuleConstants {
   const double steerEncoderOffset;
   const bool invertDrive;
   const bool invertSteer;
-  const ModuleGains driveGains;
-  const ModuleGains steerGains;
-  const units::scalar_t driveGearing;
-  const units::scalar_t steerGearing;
-  const units::ampere_t driveSlipCurrent;
-  const units::radians_per_second_t steerMotionMagicVel;
-  const units::radians_per_second_squared_t steerMotionMagicAccel;
-  const units::meter_t wheelRadius;
-  const units::scalar_t driveSteerCoupling;
-  const units::meters_per_second_t maxDriveSpeed;
 };
 
 struct SteerCharData {
@@ -98,12 +88,8 @@ public:
   void OptimizeBusSignals();
 
 private:
-  ctre::phoenix::StatusCode ConfigureDriveMotor(bool invertDrive,
-    units::scalar_t driveGearing, units::ampere_t slipCurrent);
-  ctre::phoenix::StatusCode ConfigureSteerMotor(bool invertSteer,
-    units::scalar_t steerGearing,
-    const units::radians_per_second_t steerMotionMagicVel,
-    const units::radians_per_second_squared_t steerMotionMagicAccel);
+  ctre::phoenix::StatusCode ConfigureDriveMotor(bool invertDrive);
+  ctre::phoenix::StatusCode ConfigureSteerMotor(bool invertSteer);
   ctre::phoenix::StatusCode ConfigureSteerEncoder(double encoderOffset);
 
   ctre::phoenix6::hardware::TalonFX driveMotor;
@@ -151,12 +137,6 @@ private:
 
   ModuleGains currentDrivingGains;
   ModuleGains currentSteeringGains;
-
-  const units::meter_t wheelRadius;
-  const units::scalar_t steerGearing;
-  const units::scalar_t driveGearing;
-  const units::scalar_t driveSteerCoupling;
-  const units::meters_per_second_t maxDriveSpeed;
 
   // SIM STUFF
   ctre::phoenix6::sim::TalonFXSimState& simSteerMotor

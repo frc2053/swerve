@@ -19,32 +19,25 @@
 #include <ctre/phoenix6/StatusSignal.hpp>
 #include <ctre/phoenix6/signals/SpnEnums.hpp>
 
+#include "Constants.h"
+
 using namespace str;
 
 SwerveModule::SwerveModule(const SwerveModuleConstants& moduleConstants)
   : driveMotor(moduleConstants.driveMotorCanId, "*")
   , steerMotor(moduleConstants.steerMotorCanId, "*")
   , steerEncoder(moduleConstants.steerEncoderCanId, "*")
-  , currentDrivingGains(moduleConstants.driveGains)
-  , currentSteeringGains(moduleConstants.steerGains)
-  , wheelRadius(moduleConstants.wheelRadius)
-  , steerGearing(moduleConstants.steerGearing)
-  , driveGearing(moduleConstants.driveGearing)
-  , driveSteerCoupling(moduleConstants.driveSteerCoupling)
-  , maxDriveSpeed(moduleConstants.maxDriveSpeed)
 {
   ctre::phoenix::StatusCode driveConfigCode
-    = ConfigureDriveMotor(moduleConstants.invertDrive,
-      moduleConstants.driveGearing, moduleConstants.driveSlipCurrent);
+    = ConfigureDriveMotor(moduleConstants.invertDrive);
   if (!driveConfigCode.IsOK()) {
     frc::DataLogManager::Log(
       fmt::format("Swerve Module ConfigureDriveMotor wasn't ok it was: {}. "
                   "More info: {}",
         driveConfigCode.GetName(), driveConfigCode.GetDescription()));
   }
-  ctre::phoenix::StatusCode steerConfigCode = ConfigureSteerMotor(
-    moduleConstants.invertSteer, moduleConstants.steerGearing,
-    moduleConstants.steerMotionMagicVel, moduleConstants.steerMotionMagicAccel);
+  ctre::phoenix::StatusCode steerConfigCode
+    = ConfigureSteerMotor(moduleConstants.invertSteer);
   if (!steerConfigCode.IsOK()) {
     frc::DataLogManager::Log(
       fmt::format("Swerve Module ConfigureSteerMotor wasn't ok it was: {}. "
@@ -128,7 +121,8 @@ frc::SwerveModulePosition SwerveModule::GetPosition(bool refresh)
     = ctre::phoenix6::BaseStatusSignal::GetLatencyCompensatedValue(
       steerAngleSignal, steerAngleVelocitySignal);
 
-  drivePosition = drivePosition - (steerPosition * driveSteerCoupling);
+  drivePosition = drivePosition
+    - (steerPosition * constants::swerve::physical::DRIVE_STEER_COUPLING);
 
   currentPosition = frc::SwerveModulePosition{
     ConvertOutputShaftToWheelDistance(drivePosition),
@@ -156,7 +150,7 @@ void SwerveModule::GoToState(const frc::SwerveModuleState& state, bool openLoop)
   units::radians_per_second_t moduleTurnSpeed
     = steerAngleVelocitySignal.GetValue();
   units::radians_per_second_t driveRateBackout
-    = moduleTurnSpeed * driveSteerCoupling;
+    = moduleTurnSpeed * constants::swerve::physical::DRIVE_STEER_COUPLING;
 
   units::radians_per_second_t velocityToGoTo
     = ConvertWheelVelocityToMotorVelocity(optimizedState.speed)
@@ -166,7 +160,9 @@ void SwerveModule::GoToState(const frc::SwerveModuleState& state, bool openLoop)
     steerAngleSetter.WithPosition(optimizedState.angle.Radians()));
   if (openLoop) {
     driveMotor.SetControl(driveVoltageSetter.WithOutput(
-      (velocityToGoTo / ConvertWheelVelocityToMotorVelocity(maxDriveSpeed))
+      (velocityToGoTo
+        / ConvertWheelVelocityToMotorVelocity(
+          constants::swerve::physical::MAX_LINEAR_SPEED))
       * 12_V));
   } else {
     driveMotor.SetControl(driveVelocitySetter.WithVelocity(velocityToGoTo));
@@ -209,8 +205,7 @@ void SwerveModule::OptimizeBusSignals()
   }
 }
 
-ctre::phoenix::StatusCode SwerveModule::ConfigureDriveMotor(
-  bool invertDrive, units::scalar_t driveGearing, units::ampere_t slipCurrent)
+ctre::phoenix::StatusCode SwerveModule::ConfigureDriveMotor(bool invertDrive)
 {
   ctre::phoenix6::configs::TalonFXConfiguration driveConfig{};
 
@@ -227,10 +222,14 @@ ctre::phoenix::StatusCode SwerveModule::ConfigureDriveMotor(
 
   driveConfig.MotorOutput.NeutralMode
     = ctre::phoenix6::signals::NeutralModeValue::Brake;
-  driveConfig.Feedback.SensorToMechanismRatio = driveGearing;
-  driveConfig.TorqueCurrent.PeakForwardTorqueCurrent = slipCurrent.value();
-  driveConfig.TorqueCurrent.PeakReverseTorqueCurrent = -slipCurrent.value();
-  driveConfig.CurrentLimits.StatorCurrentLimit = slipCurrent.value();
+  driveConfig.Feedback.SensorToMechanismRatio
+    = constants::swerve::physical::DRIVE_GEARING;
+  driveConfig.TorqueCurrent.PeakForwardTorqueCurrent
+    = constants::swerve::physical::SLIP_CURRENT.value();
+  driveConfig.TorqueCurrent.PeakReverseTorqueCurrent
+    = -constants::swerve::physical::SLIP_CURRENT.value();
+  driveConfig.CurrentLimits.StatorCurrentLimit
+    = constants::swerve::physical::SLIP_CURRENT.value();
   driveConfig.CurrentLimits.StatorCurrentLimitEnable = true;
   driveConfig.MotorOutput.Inverted = invertDrive
     ? ctre::phoenix6::signals::InvertedValue::Clockwise_Positive
@@ -238,10 +237,7 @@ ctre::phoenix::StatusCode SwerveModule::ConfigureDriveMotor(
   return driveMotor.GetConfigurator().Apply(driveConfig);
 }
 
-ctre::phoenix::StatusCode SwerveModule::ConfigureSteerMotor(bool invertSteer,
-  units::scalar_t steerGearing,
-  const units::radians_per_second_t steerMotionMagicVel,
-  const units::radians_per_second_squared_t steerMotionMagicAccel)
+ctre::phoenix::StatusCode SwerveModule::ConfigureSteerMotor(bool invertSteer)
 {
   ctre::phoenix6::configs::TalonFXConfiguration steerConfig{};
 
@@ -259,19 +255,21 @@ ctre::phoenix::StatusCode SwerveModule::ConfigureSteerMotor(bool invertSteer,
   steerConfig.MotorOutput.NeutralMode
     = ctre::phoenix6::signals::NeutralModeValue::Brake;
   // TODO: Not sure if this is correct...
-  steerConfig.Feedback.SensorToMechanismRatio = steerGearing;
+  steerConfig.Feedback.SensorToMechanismRatio
+    = constants::swerve::physical::STEER_GEARING;
   steerConfig.Feedback.FeedbackRemoteSensorID = steerEncoder.GetDeviceID();
   steerConfig.Feedback.FeedbackSensorSource
     = ctre::phoenix6::signals::FeedbackSensorSourceValue::FusedCANcoder;
-  steerConfig.Feedback.RotorToSensorRatio = steerGearing;
+  steerConfig.Feedback.RotorToSensorRatio
+    = constants::swerve::physical::STEER_GEARING;
   steerConfig.MotorOutput.Inverted = invertSteer
     ? ctre::phoenix6::signals::InvertedValue::Clockwise_Positive
     : ctre::phoenix6::signals::InvertedValue::CounterClockwise_Positive;
   steerConfig.ClosedLoopGeneral.ContinuousWrap = true;
   steerConfig.MotionMagic.MotionMagicAcceleration
-    = steerMotionMagicAccel.value();
+    = constants::swerve::physical::STEER_MOTION_MAGIC_ACCEL.value();
   steerConfig.MotionMagic.MotionMagicCruiseVelocity
-    = steerMotionMagicVel.value();
+    = constants::swerve::physical::STEER_MOTION_MAGIC_VEL.value();
 
   return steerMotor.GetConfigurator().Apply(steerConfig);
 }
@@ -288,40 +286,40 @@ units::meter_t SwerveModule::ConvertOutputShaftToWheelDistance(
   units::radian_t shaftRotations) const
 {
   return units::ConvertAngularDistanceToLinearDistance(
-    shaftRotations, wheelRadius);
+    shaftRotations, constants::swerve::physical::DRIVE_WHEEL_DIAMETER / 2);
 }
 
 units::meters_per_second_t SwerveModule::ConvertOutputShaftToWheelVelocity(
   units::radians_per_second_t shaftVelocity) const
 {
   return units::ConvertAngularVelocityToLinearVelocity(
-    shaftVelocity, wheelRadius);
+    shaftVelocity, constants::swerve::physical::DRIVE_WHEEL_DIAMETER / 2);
 }
 
 units::radian_t SwerveModule::ConvertWheelDistanceToMotorShaftRotations(
   units::meter_t wheelRotations) const
 {
   return units::ConvertLinearDistanceToAngularDistance(
-    wheelRotations, wheelRadius);
+    wheelRotations, constants::swerve::physical::DRIVE_WHEEL_DIAMETER / 2);
 }
 
 units::radians_per_second_t SwerveModule::ConvertWheelVelocityToMotorVelocity(
   units::meters_per_second_t wheelVelocity) const
 {
   return units::ConvertLinearVelocityToAngularVelocity(
-           wheelVelocity, wheelRadius)
-    * driveGearing;
+           wheelVelocity, constants::swerve::physical::DRIVE_WHEEL_DIAMETER / 2)
+    * constants::swerve::physical::DRIVE_GEARING;
 }
 
 units::radian_t SwerveModule::ConvertOutputShaftPositionToMotorShaftPosition(
   units::radian_t outputShaftPosition) const
 {
-  return outputShaftPosition * steerGearing;
+  return outputShaftPosition * constants::swerve::physical::STEER_GEARING;
 }
 
 units::radians_per_second_t
 SwerveModule::ConvertOutputShaftVelocityToMotorShaftVelocity(
   units::radians_per_second_t outputShaftVelocity) const
 {
-  return outputShaftVelocity * steerGearing;
+  return outputShaftVelocity * constants::swerve::physical::STEER_GEARING;
 }
