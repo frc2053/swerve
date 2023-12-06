@@ -7,10 +7,19 @@
 #include <frc/DataLogManager.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 
+#include "Constants.h"
+#include "frc/RobotBase.h"
+#include "frc/geometry/Pose2d.h"
+#include "frc/geometry/Transform2d.h"
+#include "frc/smartdashboard/Field2d.h"
+#include "frc/smartdashboard/FieldObject2d.h"
+
 using namespace str;
 
 SwerveDrive::SwerveDrive()
 {
+  frc::SmartDashboard::PutData(&ntField);
+
   for (int i = 0; i < 4; i++) {
     const auto& moduleSignals = swerveModules[i].GetSignals();
     allModuleSignals[(i * 4) + 0] = moduleSignals[0]; // steer pos
@@ -39,8 +48,27 @@ SwerveDrive::SwerveDrive()
 
 void SwerveDrive::Log()
 {
-  frc::SmartDashboard::PutNumber("Averge Odom Loop Time (ms)",
-    averageLoopTime.convert<units::millisecond>().value());
+  frc::SmartDashboard::PutNumber(
+    "Drivebase/Averge Odom Frequency", (1 / averageLoopTime).value());
+
+  ntField.GetObject("Estimated Robot Pose")->SetPose(GetPose());
+  ntField.GetObject("Estimated Robot Modules")->SetPoses(GetModulePoses());
+}
+
+frc::Pose2d SwerveDrive::GetPose() const
+{
+  return poseEstimator.GetEstimatedPosition();
+}
+
+std::array<frc::Pose2d, 4> SwerveDrive::GetModulePoses() const
+{
+  std::array<frc::Pose2d, 4> poses;
+  for (int i = 0; i < 4; i++) {
+    poses[i] = GetPose().TransformBy(
+      frc::Transform2d{constants::swerve::physical::moduleLocations[i],
+        swerveModules[i].GetCachedPosition().angle});
+  }
+  return poses;
 }
 
 void SwerveDrive::UpdateOdometry()
@@ -53,12 +81,13 @@ void SwerveDrive::UpdateOdometry()
     = ctre::phoenix6::BaseStatusSignal::WaitForAll(
       2.0 / 250_Hz, allModuleSignals);
 
-  // if (!status.IsOK()) {
-  //   frc::DataLogManager::Log(
-  //     fmt::format("UpdateOdometry failed: {}. More info: {}",
-  //     status.GetName(),
-  //       status.GetDescription()));
-  // }
+  if (frc::RobotBase::IsReal()) {
+    if (!status.IsOK()) {
+      frc::DataLogManager::Log(
+        fmt::format("UpdateOdometry failed: {}. More info: {}",
+          status.GetName(), status.GetDescription()));
+    }
+  }
 
   for (int i = 0; i < 4; i++) {
     modulePostions[i] = swerveModules[i].GetPosition(false);

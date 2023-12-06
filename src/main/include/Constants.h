@@ -59,14 +59,11 @@ namespace swerve {
     static constexpr units::radians_per_second_squared_t
       STEER_MOTION_MAGIC_ACCEL{100};
 
-    static constexpr frc::Translation2d FL_LOCATION{
-      WHEELBASE_LENGTH / 2, WHEELBASE_WIDTH / 2};
-    static constexpr frc::Translation2d FR_LOCATION{
-      WHEELBASE_LENGTH / 2, -WHEELBASE_WIDTH / 2};
-    static constexpr frc::Translation2d BL_LOCATION{
-      -WHEELBASE_LENGTH / 2, WHEELBASE_WIDTH / 2};
-    static constexpr frc::Translation2d BR_LOCATION{
-      -WHEELBASE_LENGTH / 2, -WHEELBASE_WIDTH / 2};
+    static constexpr std::array<frc::Translation2d, 4> moduleLocations{
+      frc::Translation2d{WHEELBASE_LENGTH / 2, WHEELBASE_WIDTH / 2},
+      frc::Translation2d{WHEELBASE_LENGTH / 2, -WHEELBASE_WIDTH / 2},
+      frc::Translation2d{-WHEELBASE_LENGTH / 2, WHEELBASE_WIDTH / 2},
+      frc::Translation2d{-WHEELBASE_LENGTH / 2, -WHEELBASE_WIDTH / 2}};
   } // namespace physical
 } // namespace swerve
 } // namespace constants

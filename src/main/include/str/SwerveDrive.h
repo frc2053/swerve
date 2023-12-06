@@ -5,7 +5,15 @@
 #pragma once
 
 #include <frc/estimator/SwerveDrivePoseEstimator.h>
+#include <frc/geometry/Pose2d.h>
 #include <frc/kinematics/SwerveDriveKinematics.h>
+#include <frc/smartdashboard/Field2d.h>
+#include <networktables/DoubleArrayTopic.h>
+#include <networktables/NetworkTable.h>
+#include <networktables/NetworkTableInstance.h>
+#include <networktables/StringTopic.h>
+
+#include <memory>
 
 #include <ctre/phoenix6/Pigeon2.hpp>
 
@@ -19,6 +27,8 @@ public:
 
   void UpdateOdometry();
   void Log();
+  frc::Pose2d GetPose() const;
+  std::array<frc::Pose2d, 4> GetModulePoses() const;
 
 private:
   const ModuleGains driveGains{
@@ -74,10 +84,10 @@ private:
         constants::swerve::physical::MAX_LINEAR_SPEED}}};
 
   frc::SwerveDriveKinematics<4> kinematics{
-    constants::swerve::physical::FL_LOCATION,
-    constants::swerve::physical::FR_LOCATION,
-    constants::swerve::physical::BL_LOCATION,
-    constants::swerve::physical::BR_LOCATION};
+    constants::swerve::physical::moduleLocations[0],
+    constants::swerve::physical::moduleLocations[1],
+    constants::swerve::physical::moduleLocations[2],
+    constants::swerve::physical::moduleLocations[3]};
 
   std::array<frc::SwerveModulePosition, 4> modulePostions{
     swerveModules[0].GetPosition(true),
@@ -97,5 +107,10 @@ private:
   units::second_t lastTime = 0_s;
   units::second_t currentTime = 0_s;
   units::second_t averageLoopTime = 0_s;
+
+  // Logging
+  nt::NetworkTableInstance ntInst{nt::NetworkTableInstance::GetDefault()};
+  std::shared_ptr<nt::NetworkTable> table{ntInst.GetTable("swerveInfo")};
+  frc::Field2d ntField{};
 };
 } // namespace str
