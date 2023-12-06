@@ -6,13 +6,13 @@
 
 #include <frc/TimedRobot.h>
 #include <frc2/command/CommandPtr.h>
+#include <units/angular_acceleration.h>
 
 #include <optional>
 
 #include "Constants.h"
 #include "RobotContainer.h"
 #include "str/SwerveModule.h"
-#include "units/angular_acceleration.h"
 
 class Robot : public frc::TimedRobot {
 public:

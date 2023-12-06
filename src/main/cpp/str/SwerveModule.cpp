@@ -4,19 +4,20 @@
 
 #include "str/SwerveModule.h"
 
-#include "ctre/phoenix/StatusCodes.h"
-#include "ctre/phoenix6/StatusSignal.hpp"
-#include "ctre/phoenix6/signals/SpnEnums.hpp"
-#include "frc/DataLogManager.h"
-#include "frc/geometry/Rotation2d.h"
-#include "frc/kinematics/SwerveModulePosition.h"
-#include "frc/kinematics/SwerveModuleState.h"
-#include "units/angle.h"
-#include "units/angular_velocity.h"
-#include "units/current.h"
-#include "units/length.h"
-#include "units/time.h"
-#include "units/velocity.h"
+#include <ctre/phoenix/StatusCodes.h>
+#include <frc/DataLogManager.h>
+#include <frc/geometry/Rotation2d.h>
+#include <frc/kinematics/SwerveModulePosition.h>
+#include <frc/kinematics/SwerveModuleState.h>
+#include <units/angle.h>
+#include <units/angular_velocity.h>
+#include <units/current.h>
+#include <units/length.h>
+#include <units/time.h>
+#include <units/velocity.h>
+
+#include <ctre/phoenix6/StatusSignal.hpp>
+#include <ctre/phoenix6/signals/SpnEnums.hpp>
 
 using namespace str;
 

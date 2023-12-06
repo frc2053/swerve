@@ -5,14 +5,14 @@
 #include "str/SwerveDrive.h"
 
 #include <frc/DataLogManager.h>
+#include <frc/RobotBase.h>
+#include <frc/geometry/Pose2d.h>
+#include <frc/geometry/Transform2d.h>
+#include <frc/smartdashboard/Field2d.h>
+#include <frc/smartdashboard/FieldObject2d.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 
 #include "Constants.h"
-#include "frc/RobotBase.h"
-#include "frc/geometry/Pose2d.h"
-#include "frc/geometry/Transform2d.h"
-#include "frc/smartdashboard/Field2d.h"
-#include "frc/smartdashboard/FieldObject2d.h"
 
 using namespace str;
 

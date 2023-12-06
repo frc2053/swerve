@@ -4,31 +4,31 @@
 
 #pragma once
 
+#include <ctre/phoenix/StatusCodes.h>
 #include <frc/kinematics/SwerveModulePosition.h>
 #include <frc/kinematics/SwerveModuleState.h>
 #include <frc/simulation/DCMotorSim.h>
+#include <units/angle.h>
+#include <units/angular_acceleration.h>
+#include <units/angular_velocity.h>
+#include <units/current.h>
+#include <units/dimensionless.h>
+#include <units/length.h>
+#include <units/velocity.h>
+#include <units/voltage.h>
 #include <wpi/json.h>
 #include <wpi/sendable/SendableBuilder.h>
 
 #include <ctre/phoenix6/CANcoder.hpp>
+#include <ctre/phoenix6/StatusSignal.hpp>
 #include <ctre/phoenix6/TalonFX.hpp>
+#include <ctre/phoenix6/controls/MotionMagicVoltage.hpp>
+#include <ctre/phoenix6/controls/VelocityTorqueCurrentFOC.hpp>
+#include <ctre/phoenix6/controls/VoltageOut.hpp>
+#include <ctre/phoenix6/sim/CANcoderSimState.hpp>
+#include <ctre/phoenix6/sim/TalonFXSimState.hpp>
 
 #include "Units.h"
-#include "ctre/phoenix/StatusCodes.h"
-#include "ctre/phoenix6/StatusSignal.hpp"
-#include "ctre/phoenix6/controls/MotionMagicVoltage.hpp"
-#include "ctre/phoenix6/controls/VelocityTorqueCurrentFOC.hpp"
-#include "ctre/phoenix6/controls/VoltageOut.hpp"
-#include "ctre/phoenix6/sim/CANcoderSimState.hpp"
-#include "ctre/phoenix6/sim/TalonFXSimState.hpp"
-#include "units/angle.h"
-#include "units/angular_acceleration.h"
-#include "units/angular_velocity.h"
-#include "units/current.h"
-#include "units/dimensionless.h"
-#include "units/length.h"
-#include "units/velocity.h"
-#include "units/voltage.h"
 
 namespace str {
 
