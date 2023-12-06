@@ -7,7 +7,6 @@
 #include <ctre/phoenix/StatusCodes.h>
 #include <frc/kinematics/SwerveModulePosition.h>
 #include <frc/kinematics/SwerveModuleState.h>
-#include <frc/simulation/DCMotorSim.h>
 #include <units/angle.h>
 #include <units/angular_acceleration.h>
 #include <units/angular_velocity.h>
@@ -28,18 +27,10 @@
 #include <ctre/phoenix6/sim/CANcoderSimState.hpp>
 #include <ctre/phoenix6/sim/TalonFXSimState.hpp>
 
+#include "Constants.h"
 #include "Units.h"
 
 namespace str {
-
-struct ModuleGains {
-  units::ka_unit_t kA{0};
-  units::kv_unit_t kV{0};
-  units::volt_t kS{0};
-  units::scalar_t kP{0};
-  units::scalar_t kI{0};
-  units::scalar_t kD{0};
-};
 
 struct SwerveModuleConstants {
   const int driveMotorCanId;
@@ -87,6 +78,22 @@ public:
   std::array<ctre::phoenix6::BaseStatusSignal*, 6> GetSignals();
   void OptimizeBusSignals();
 
+  static units::meter_t ConvertOutputShaftToWheelDistance(
+    units::radian_t shaftRotations);
+  static units::meters_per_second_t ConvertOutputShaftToWheelVelocity(
+    units::radians_per_second_t shaftVelocity);
+
+  static units::radian_t ConvertWheelDistanceToMotorShaftRotations(
+    units::meter_t wheelRotations);
+  static units::radians_per_second_t ConvertWheelVelocityToMotorVelocity(
+    units::meters_per_second_t wheelVelocity);
+
+  static units::radian_t ConvertOutputShaftPositionToMotorShaftPosition(
+    units::radian_t outputShaftPosition);
+  static units::radians_per_second_t
+  ConvertOutputShaftVelocityToMotorShaftVelocity(
+    units::radians_per_second_t outputShaftVelocity);
+
 private:
   ctre::phoenix::StatusCode ConfigureDriveMotor(bool invertDrive);
   ctre::phoenix::StatusCode ConfigureSteerMotor(bool invertSteer);
@@ -120,23 +127,10 @@ private:
   frc::SwerveModuleState currentState{};
   frc::SwerveModulePosition currentPosition{};
 
-  units::meter_t ConvertOutputShaftToWheelDistance(
-    units::radian_t shaftRotations) const;
-  units::meters_per_second_t ConvertOutputShaftToWheelVelocity(
-    units::radians_per_second_t shaftVelocity) const;
-
-  units::radian_t ConvertWheelDistanceToMotorShaftRotations(
-    units::meter_t wheelRotations) const;
-  units::radians_per_second_t ConvertWheelVelocityToMotorVelocity(
-    units::meters_per_second_t wheelVelocity) const;
-
-  units::radian_t ConvertOutputShaftPositionToMotorShaftPosition(
-    units::radian_t outputShaftPosition) const;
-  units::radians_per_second_t ConvertOutputShaftVelocityToMotorShaftVelocity(
-    units::radians_per_second_t outputShaftVelocity) const;
-
-  ModuleGains currentDrivingGains;
-  ModuleGains currentSteeringGains;
+  constants::swerve::ModuleDriveGains currentDrivingGains{
+    constants::swerve::driveGains};
+  constants::swerve::ModuleSteerGains currentSteeringGains{
+    constants::swerve::steerGains};
 
   // SIM STUFF
   ctre::phoenix6::sim::TalonFXSimState& simSteerMotor

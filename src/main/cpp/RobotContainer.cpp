@@ -8,7 +8,25 @@
 
 RobotContainer::RobotContainer() { ConfigureBindings(); }
 
-void RobotContainer::ConfigureBindings() { }
+void RobotContainer::ConfigureBindings()
+{
+  driveSub.SetDefaultCommand(driveSub.DriveFactory(
+    [this] {
+      double fwdCmd
+        = frc::ApplyDeadband<double>(-driverController.GetLeftY(), 0.2);
+      return std::abs(fwdCmd) * fwdCmd;
+    },
+    [this] {
+      double sideCmd
+        = frc::ApplyDeadband<double>(-driverController.GetLeftX(), 0.2);
+      return std::abs(sideCmd) * sideCmd;
+    },
+    [this] {
+      double rotCmd
+        = frc::ApplyDeadband<double>(-driverController.GetRightX(), 0.2);
+      return std::abs(rotCmd) * rotCmd;
+    }));
+}
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand()
 {

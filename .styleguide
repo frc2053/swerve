@@ -26,4 +26,5 @@ modifiableFileExclude {
    vendordeps/
    ctre_sim/
    .pathplanner/
+   img/
 }

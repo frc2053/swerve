@@ -12,13 +12,17 @@
 #include <networktables/NetworkTable.h>
 #include <networktables/NetworkTableInstance.h>
 #include <networktables/StringTopic.h>
+#include <units/current.h>
 
 #include <memory>
 
 #include <ctre/phoenix6/Pigeon2.hpp>
+#include <ctre/phoenix6/sim/Pigeon2SimState.hpp>
 
 #include "Constants.h"
+#include "SwerveDriveSim.h"
 #include "SwerveModule.h"
+#include "str/SwerveDriveSim.h"
 
 namespace str {
 class SwerveDrive {
@@ -27,16 +31,27 @@ public:
 
   void UpdateOdometry();
   void Log();
+  void SimulationUpdate();
+
+  void Drive(units::meters_per_second_t vx, units::meters_per_second_t vy,
+    units::radians_per_second_t omega, bool openLoop);
+
+  void SetChassisSpeeds(
+    const frc::ChassisSpeeds& newChassisSpeeds, bool openLoop);
+
+  void SetModuleStates(
+    const std::array<frc::SwerveModuleState, 4>& desiredStates, bool openLoop);
+
+  frc::Rotation2d GetHeading() const;
+
+  frc::Rotation2d GetGyroYaw() const;
+
   frc::Pose2d GetPose() const;
+  frc::Pose2d GetSimPose() const;
+  units::ampere_t GetCurrentDraw() const;
   std::array<frc::Pose2d, 4> GetModulePoses() const;
 
 private:
-  const ModuleGains driveGains{
-    units::ka_unit_t{0}, units::kv_unit_t{0}, 0_V, 3.0, 0.0, 0.0};
-
-  const ModuleGains steerGains{
-    units::ka_unit_t{0}, units::kv_unit_t{0}, 0_V, 1.0, 0.0, 0.0};
-
   std::array<SwerveModule, 4> swerveModules
     = {SwerveModule{SwerveModuleConstants{constants::swerve::can::FL_DRIVE,
          constants::swerve::can::FL_STEER, constants::swerve::can::FL_ENC,
@@ -51,12 +66,6 @@ private:
         constants::swerve::can::BR_STEER, constants::swerve::can::BR_ENC,
         constants::swerve::physical::BR_ENCODER_OFFSET, false, false}}};
 
-  frc::SwerveDriveKinematics<4> kinematics{
-    constants::swerve::physical::moduleLocations[0],
-    constants::swerve::physical::moduleLocations[1],
-    constants::swerve::physical::moduleLocations[2],
-    constants::swerve::physical::moduleLocations[3]};
-
   std::array<frc::SwerveModulePosition, 4> modulePostions{
     swerveModules[0].GetPosition(true),
     swerveModules[1].GetPosition(true),
@@ -65,11 +74,18 @@ private:
   };
 
   frc::SwerveDrivePoseEstimator<4> poseEstimator{
-    kinematics, frc::Rotation2d{}, modulePostions, frc::Pose2d{}};
+    constants::swerve::physical::KINEMATICS, frc::Rotation2d{}, modulePostions,
+    frc::Pose2d{}};
 
   ctre::phoenix6::hardware::Pigeon2 imu{constants::swerve::can::IMU, "*"};
+  units::radian_t imuYaw{};
 
-  std::array<ctre::phoenix6::BaseStatusSignal*, 18> allModuleSignals;
+  std::array<ctre::phoenix6::BaseStatusSignal*, 26> allModuleSignals;
+
+  // Simulation
+  SwerveDriveSim swerveSim{};
+  ctre::phoenix6::sim::Pigeon2SimState& imuSimState = imu.GetSimState();
+  units::ampere_t totalCurrentDraw{0};
 
   // Stats for fast update time
   units::second_t lastTime = 0_s;

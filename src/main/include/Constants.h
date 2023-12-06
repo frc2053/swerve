@@ -5,6 +5,7 @@
 #pragma once
 
 #include <frc/geometry/Translation2d.h>
+#include <frc/kinematics/SwerveDriveKinematics.h>
 #include <frc/system/plant/DCMotor.h>
 #include <units/angular_acceleration.h>
 #include <units/velocity.h>
@@ -13,6 +14,35 @@
 
 namespace constants {
 namespace swerve {
+
+  struct ModuleDriveGains {
+    units::ka_unit_t kA{0};
+    units::kv_unit_t kV{0};
+    units::volt_t kS{0};
+    units::scalar_t kP{0};
+    units::scalar_t kI{0};
+    units::scalar_t kD{0};
+  };
+
+  using radial_ka_unit = units::compound_unit<
+    units::compound_unit<units::volts, units::squared<units::seconds>>,
+    units::inverse<units::radians>>;
+  using radial_ka_unit_t = units::unit_t<radial_ka_unit>;
+
+  struct ModuleSteerGains {
+    radial_ka_unit_t kA{0};
+    frc::DCMotor::radians_per_second_per_volt_t kV{0};
+    units::volt_t kS{0};
+    units::scalar_t kP{0};
+    units::scalar_t kI{0};
+    units::scalar_t kD{0};
+  };
+
+  static constexpr ModuleDriveGains driveGains{
+    units::ka_unit_t{0.3}, units::kv_unit_t{2.5}, .25_V, 3.0, 0.0, 0.0};
+  static constexpr ModuleSteerGains steerGains{radial_ka_unit_t{0.01},
+    frc::DCMotor::radians_per_second_per_volt_t{.25}, 0.5_V, 20.0, 0.0, 0.0};
+
   namespace can {
     static constexpr int FL_DRIVE = 2;
     static constexpr int FL_STEER = 3;
@@ -34,6 +64,10 @@ namespace swerve {
   } // namespace can
 
   namespace physical {
+    static constexpr frc::DCMotor SWERVE_MOTOR{frc::DCMotor::Falcon500(1)};
+    static constexpr frc::DCMotor SWERVE_MOTOR_FOC{
+      frc::DCMotor::Falcon500FOC(1)};
+
     static constexpr units::meter_t WHEELBASE_LENGTH = 25_in;
     static constexpr units::meter_t WHEELBASE_WIDTH = 25_in;
     static constexpr units::meter_t DRIVE_WHEEL_DIAMETER = 4_in;
@@ -44,8 +78,12 @@ namespace swerve {
     static constexpr units::scalar_t DRIVE_STEER_COUPLING = (50.0 / 14.0);
     static constexpr units::meters_per_second_t MAX_LINEAR_SPEED
       = units::ConvertAngularVelocityToLinearVelocity(
-        frc::DCMotor::Falcon500(1).freeSpeed / DRIVE_GEARING,
-        DRIVE_WHEEL_DIAMETER / 2);
+        SWERVE_MOTOR.freeSpeed / DRIVE_GEARING, DRIVE_WHEEL_DIAMETER / 2);
+    static constexpr units::meters_per_second_t MAX_LINEAR_SPEED_FOC
+      = units::ConvertAngularVelocityToLinearVelocity(
+        SWERVE_MOTOR_FOC.freeSpeed / DRIVE_GEARING, DRIVE_WHEEL_DIAMETER / 2);
+    static constexpr units::radians_per_second_t MAX_ROTATION_SPEED
+      = 720_deg_per_s;
 
     static constexpr double FL_ENCODER_OFFSET = 0;
     static constexpr double FR_ENCODER_OFFSET = 0;
@@ -64,6 +102,9 @@ namespace swerve {
       frc::Translation2d{WHEELBASE_LENGTH / 2, -WHEELBASE_WIDTH / 2},
       frc::Translation2d{-WHEELBASE_LENGTH / 2, WHEELBASE_WIDTH / 2},
       frc::Translation2d{-WHEELBASE_LENGTH / 2, -WHEELBASE_WIDTH / 2}};
+
+    static frc::SwerveDriveKinematics<4> KINEMATICS{moduleLocations[0],
+      moduleLocations[1], moduleLocations[2], moduleLocations[3]};
   } // namespace physical
 } // namespace swerve
 } // namespace constants

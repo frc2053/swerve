@@ -4,7 +4,11 @@
 
 #pragma once
 
+#include <frc2/command/CommandPtr.h>
+#include <frc2/command/RunCommand.h>
 #include <frc2/command/SubsystemBase.h>
+
+#include <functional>
 
 #include "str/SwerveDrive.h"
 
@@ -16,8 +20,12 @@ public:
    * Will be called periodically whenever the CommandScheduler runs.
    */
   void Periodic() override;
+  void SimulationPeriodic() override;
 
   void UpdateOdometry();
+
+  frc2::CommandPtr DriveFactory(std::function<double()> fow,
+    std::function<double()> side, std::function<double()> rot);
 
 private:
   str::SwerveDrive swerveDrive{};

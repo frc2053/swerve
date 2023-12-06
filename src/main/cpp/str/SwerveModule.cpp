@@ -16,10 +16,10 @@
 #include <units/time.h>
 #include <units/velocity.h>
 
+#include <iostream>
+
 #include <ctre/phoenix6/StatusSignal.hpp>
 #include <ctre/phoenix6/signals/SpnEnums.hpp>
-
-#include "Constants.h"
 
 using namespace str;
 
@@ -59,8 +59,14 @@ void SwerveModule::SimulationUpdate(units::meter_t driveDistance,
   units::radian_t steerDistance, units::radians_per_second_t steerVelocity,
   units::ampere_t steerCurrent)
 {
-  simDriveMotor.SetRawRotorPosition(
-    ConvertWheelDistanceToMotorShaftRotations(driveDistance));
+  // std::cout << fmt::format("driveDist: {}, driveVel: {}, driveCurrent: {}, "
+  //                          "steerDist: {}, steerVel: {}, steerCurrent: {}\n",
+  //   driveDistance.value(), driveVelocity.value(), driveCurrent.value(),
+  //   steerDistance.value(), steerVelocity.value(), steerCurrent.value());
+  units::radian_t converted
+    = ConvertWheelDistanceToMotorShaftRotations(driveDistance);
+  // std::cout << fmt::format("converted drive dist: {}\n", converted.value());
+  simDriveMotor.SetRawRotorPosition(converted);
   simDriveMotor.SetRotorVelocity(
     ConvertWheelVelocityToMotorVelocity(driveVelocity));
   // TODO: Might need to set supply voltage
@@ -209,6 +215,7 @@ ctre::phoenix::StatusCode SwerveModule::ConfigureDriveMotor(bool invertDrive)
 {
   ctre::phoenix6::configs::TalonFXConfiguration driveConfig{};
 
+  // TODO: ALSO, KV AND KA UNITS ARE LINEAR HERE. MIGHT MATTER
   // Be careful here. Make sure we are controlling in volts as gains will be
   // different depending on control mode.
   ctre::phoenix6::configs::Slot0Configs driveSlotConfig{};
@@ -283,28 +290,29 @@ ctre::phoenix::StatusCode SwerveModule::ConfigureSteerEncoder(
 }
 
 units::meter_t SwerveModule::ConvertOutputShaftToWheelDistance(
-  units::radian_t shaftRotations) const
+  units::radian_t shaftRotations)
 {
   return units::ConvertAngularDistanceToLinearDistance(
     shaftRotations, constants::swerve::physical::DRIVE_WHEEL_DIAMETER / 2);
 }
 
 units::meters_per_second_t SwerveModule::ConvertOutputShaftToWheelVelocity(
-  units::radians_per_second_t shaftVelocity) const
+  units::radians_per_second_t shaftVelocity)
 {
   return units::ConvertAngularVelocityToLinearVelocity(
     shaftVelocity, constants::swerve::physical::DRIVE_WHEEL_DIAMETER / 2);
 }
 
 units::radian_t SwerveModule::ConvertWheelDistanceToMotorShaftRotations(
-  units::meter_t wheelRotations) const
+  units::meter_t wheelRotations)
 {
-  return units::ConvertLinearDistanceToAngularDistance(
-    wheelRotations, constants::swerve::physical::DRIVE_WHEEL_DIAMETER / 2);
+  return units::ConvertLinearDistanceToAngularDistance(wheelRotations,
+           constants::swerve::physical::DRIVE_WHEEL_DIAMETER / 2)
+    * constants::swerve::physical::DRIVE_GEARING;
 }
 
 units::radians_per_second_t SwerveModule::ConvertWheelVelocityToMotorVelocity(
-  units::meters_per_second_t wheelVelocity) const
+  units::meters_per_second_t wheelVelocity)
 {
   return units::ConvertLinearVelocityToAngularVelocity(
            wheelVelocity, constants::swerve::physical::DRIVE_WHEEL_DIAMETER / 2)
@@ -312,14 +320,14 @@ units::radians_per_second_t SwerveModule::ConvertWheelVelocityToMotorVelocity(
 }
 
 units::radian_t SwerveModule::ConvertOutputShaftPositionToMotorShaftPosition(
-  units::radian_t outputShaftPosition) const
+  units::radian_t outputShaftPosition)
 {
   return outputShaftPosition * constants::swerve::physical::STEER_GEARING;
 }
 
 units::radians_per_second_t
 SwerveModule::ConvertOutputShaftVelocityToMotorShaftVelocity(
-  units::radians_per_second_t outputShaftVelocity) const
+  units::radians_per_second_t outputShaftVelocity)
 {
   return outputShaftVelocity * constants::swerve::physical::STEER_GEARING;
 }

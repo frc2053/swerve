@@ -5,10 +5,10 @@ plugins {
     id "edu.wpi.first.GradleRIO" version "2024.1.1-beta-3"
 }
 
-wpi.maven.useLocal = false
-wpi.maven.useFrcMavenLocalDevelopment = true
-wpi.versions.wpilibVersion = '2024.424242.+'
-wpi.versions.wpimathVersion = '2024.424242.+'
+// wpi.maven.useLocal = false
+// wpi.maven.useFrcMavenLocalDevelopment = true
+// wpi.versions.wpilibVersion = '2024.424242.+'
+// wpi.versions.wpimathVersion = '2024.424242.+'
 
 // Define my targets (RoboRIO) and artifacts (deployable files)
 // This is added by GradleRIO's backing project DeployUtils.

@@ -5,6 +5,7 @@
 #pragma once
 
 #include <frc2/command/CommandPtr.h>
+#include <frc2/command/button/CommandXboxController.h>
 
 #include "subsystems/DrivebaseSubsystem.h"
 
@@ -17,6 +18,8 @@ public:
 
 private:
   void ConfigureBindings();
+
+  frc2::CommandXboxController driverController{0};
 
   DrivebaseSubsystem driveSub;
 };
