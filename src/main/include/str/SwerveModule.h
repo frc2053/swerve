@@ -68,7 +68,8 @@ public:
   frc::SwerveModulePosition GetPosition(bool refresh);
   frc::SwerveModulePosition GetCachedPosition() const;
   frc::SwerveModuleState GetState() const;
-  void GoToState(const frc::SwerveModuleState& state, bool openLoop);
+  void GoToState(
+    const frc::SwerveModuleState& state, bool openLoop, bool optimize);
 
   void ResetPosition();
 
@@ -82,10 +83,10 @@ public:
 
   void Log(int moduleIndex);
 
-  static units::meter_t ConvertOutputShaftToWheelDistance(
-    units::radian_t shaftRotations);
-  static units::meters_per_second_t ConvertOutputShaftToWheelVelocity(
-    units::radians_per_second_t shaftVelocity);
+  static units::meter_t ConvertMotorToWheelDistance(
+    units::radian_t motorRotations);
+  static units::meters_per_second_t ConvertMotorSpeedToWheelVelocity(
+    units::radians_per_second_t motorVelocity);
 
   static units::radian_t ConvertWheelDistanceToMotorShaftRotations(
     units::meter_t wheelRotations);

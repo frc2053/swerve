@@ -31,6 +31,7 @@ void RobotContainer::ConfigureBindings()
     [this] { return driverController.GetStartButtonPressed(); }));
   driverController.B().OnTrue(driveSub.CharacterizeDriveMotors(
     [this] { return driverController.GetStartButtonPressed(); }));
+  driverController.Y().OnTrue(driveSub.SelfTest());
 }
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand()

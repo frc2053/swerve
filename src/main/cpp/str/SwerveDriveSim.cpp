@@ -4,6 +4,7 @@
 
 #include "str/SwerveDriveSim.h"
 
+#include "Constants.h"
 #include "str/SwerveModule.h"
 #include "units/current.h"
 
@@ -54,10 +55,12 @@ std::array<SimState, 4> SwerveDriveSim::GetState() const
   std::array<SimState, 4> state;
 
   for (int i = 0; i < simModules.size(); i++) {
-    state[i].drivePos = SwerveModule::ConvertOutputShaftToWheelDistance(
-      simModules[i].driveMotor.GetAngularPosition());
-    state[i].driveVel = SwerveModule::ConvertOutputShaftToWheelVelocity(
-      simModules[i].driveMotor.GetAngularVelocity());
+    state[i].drivePos = SwerveModule::ConvertMotorToWheelDistance(
+      simModules[i].driveMotor.GetAngularPosition()
+      * constants::swerve::physical::DRIVE_GEARING);
+    state[i].driveVel = SwerveModule::ConvertMotorSpeedToWheelVelocity(
+      simModules[i].driveMotor.GetAngularVelocity()
+      * constants::swerve::physical::DRIVE_GEARING);
     state[i].steerPos = simModules[i].steerMotor.GetAngularPosition();
     state[i].steerVel = simModules[i].steerMotor.GetAngularVelocity();
   }

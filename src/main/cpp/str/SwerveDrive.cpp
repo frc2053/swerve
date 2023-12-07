@@ -22,6 +22,7 @@
 #include "frc/geometry/Rotation2d.h"
 #include "frc/geometry/Twist2d.h"
 #include "frc/kinematics/SwerveModulePosition.h"
+#include "frc/kinematics/SwerveModuleState.h"
 #include "frc2/command/CommandPtr.h"
 #include "frc2/command/Commands.h"
 #include "frc2/command/Requirements.h"
@@ -79,7 +80,8 @@ void SwerveDrive::SetChassisSpeeds(
 }
 
 void SwerveDrive::SetModuleStates(
-  const std::array<frc::SwerveModuleState, 4>& desiredStates, bool openLoop)
+  const std::array<frc::SwerveModuleState, 4>& desiredStates, bool openLoop,
+  bool optimize)
 {
   units::meters_per_second_t maxSpeed;
   if (openLoop) {
@@ -93,7 +95,7 @@ void SwerveDrive::SetModuleStates(
     static_cast<wpi::array<frc::SwerveModuleState, 4>*>(&desaturatedStates),
     maxSpeed);
   for (int i = 0; i < swerveModules.size(); i++) {
-    swerveModules[i].GoToState(desaturatedStates[i], openLoop);
+    swerveModules[i].GoToState(desaturatedStates[i], openLoop, optimize);
   }
 }
 
@@ -494,5 +496,38 @@ frc2::CommandPtr SwerveDrive::CharacterizeDriveMotors(
       outFile << driveData.dump() << std::endl;
       outFile.close();
     })
+  );
+}
+
+frc2::CommandPtr SwerveDrive::SelfTest(frc2::Requirements reqs) {
+  return frc2::cmd::Sequence(
+    frc2::cmd::Run([this] {
+      frc::SwerveModuleState forwardState{0_mps, frc::Rotation2d{0_deg}};
+      SetModuleStates({forwardState, forwardState, forwardState, forwardState}, false, false);
+    }, reqs).WithTimeout(2_s),
+    frc2::cmd::Run([this] {
+      frc::SwerveModuleState leftState{0_mps, frc::Rotation2d{90_deg}};
+      SetModuleStates({leftState, leftState, leftState, leftState}, false, false);
+    }, reqs).WithTimeout(2_s),
+    frc2::cmd::Run([this] {
+      frc::SwerveModuleState backState{0_mps, frc::Rotation2d{180_deg}};
+      SetModuleStates({backState, backState, backState, backState}, false, false);
+    }, reqs).WithTimeout(2_s),
+    frc2::cmd::Run([this] {
+      frc::SwerveModuleState rightState{0_mps, frc::Rotation2d{270_deg}};
+      SetModuleStates({rightState, rightState, rightState, rightState}, false, false);
+    }, reqs).WithTimeout(2_s),
+    frc2::cmd::Run([this] {
+      frc::SwerveModuleState forwardState{0_mps, frc::Rotation2d{0_deg}};
+      SetModuleStates({forwardState, forwardState, forwardState, forwardState}, false, false);
+    }, reqs).WithTimeout(2_s),
+    frc2::cmd::Run([this] {
+      frc::SwerveModuleState goForward{3_fps, frc::Rotation2d{0_deg}};
+      SetModuleStates({goForward, goForward, goForward, goForward}, false, true);
+    }, reqs).WithTimeout(2_s),
+    frc2::cmd::Run([this] {
+      frc::SwerveModuleState goBack{-3_fps, frc::Rotation2d{0_deg}};
+      SetModuleStates({goBack, goBack, goBack, goBack}, false, true);
+    }, reqs).WithTimeout(2_s)
   );
 }

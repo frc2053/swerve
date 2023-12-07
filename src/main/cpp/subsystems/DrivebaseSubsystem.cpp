@@ -7,6 +7,8 @@
 #include <frc2/command/Commands.h>
 #include <frc2/command/SubsystemBase.h>
 
+#include "frc2/command/CommandPtr.h"
+
 DrivebaseSubsystem::DrivebaseSubsystem() = default;
 
 // This method will be called once per scheduler run
@@ -42,4 +44,9 @@ frc2::CommandPtr DrivebaseSubsystem::CharacterizeDriveMotors(
   std::function<bool()> nextStepButton)
 {
   return swerveDrive.CharacterizeDriveMotors(nextStepButton, {this});
+}
+
+frc2::CommandPtr DrivebaseSubsystem::SelfTest()
+{
+  return swerveDrive.SelfTest({this});
 }

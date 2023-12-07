@@ -46,7 +46,8 @@ public:
     const frc::ChassisSpeeds& newChassisSpeeds, bool openLoop);
 
   void SetModuleStates(
-    const std::array<frc::SwerveModuleState, 4>& desiredStates, bool openLoop);
+    const std::array<frc::SwerveModuleState, 4>& desiredStates, bool openLoop,
+    bool optimize = true);
 
   frc::Rotation2d GetHeading() const;
 
@@ -62,6 +63,8 @@ public:
 
   frc2::CommandPtr CharacterizeDriveMotors(
     std::function<bool()> nextStepButton, frc2::Requirements reqs);
+
+  frc2::CommandPtr SelfTest(frc2::Requirements reqs);
 
 private:
   std::array<SwerveModule, 4> swerveModules

@@ -96,8 +96,8 @@ DriveCharData SwerveModule::GetDriveCharData()
       drivePositionSignal, driveVelocitySignal);
 
   return DriveCharData{driveVoltageSignal.GetValue(),
-    ConvertOutputShaftToWheelDistance(drivePosition),
-    ConvertOutputShaftToWheelVelocity(driveVelocitySignal.GetValue())};
+    ConvertMotorToWheelDistance(drivePosition),
+    ConvertMotorSpeedToWheelVelocity(driveVelocitySignal.GetValue())};
 }
 
 SteerCharData SwerveModule::GetSteerCharData()
@@ -140,11 +140,10 @@ frc::SwerveModulePosition SwerveModule::GetPosition(bool refresh)
     - (steerPosition * constants::swerve::physical::DRIVE_STEER_COUPLING);
 
   currentPosition = frc::SwerveModulePosition{
-    ConvertOutputShaftToWheelDistance(drivePosition),
-    frc::Rotation2d{steerPosition}};
+    ConvertMotorToWheelDistance(drivePosition), frc::Rotation2d{steerPosition}};
 
   currentState = frc::SwerveModuleState{
-    ConvertOutputShaftToWheelVelocity(driveVelocitySignal.GetValue()),
+    ConvertMotorSpeedToWheelVelocity(driveVelocitySignal.GetValue()),
     frc::Rotation2d{steerPosition}};
 
   return currentPosition;
@@ -157,10 +156,13 @@ frc::SwerveModulePosition SwerveModule::GetCachedPosition() const
 
 frc::SwerveModuleState SwerveModule::GetState() const { return currentState; }
 
-void SwerveModule::GoToState(const frc::SwerveModuleState& state, bool openLoop)
+void SwerveModule::GoToState(
+  const frc::SwerveModuleState& state, bool openLoop, bool optimize)
 {
-  frc::SwerveModuleState optimizedState
-    = frc::SwerveModuleState::Optimize(state, currentState.angle);
+  frc::SwerveModuleState stateToGoTo = state;
+  if (optimize) {
+    stateToGoTo = frc::SwerveModuleState::Optimize(state, currentState.angle);
+  }
 
   units::radians_per_second_t moduleTurnSpeed
     = steerAngleVelocitySignal.GetValue();
@@ -168,11 +170,10 @@ void SwerveModule::GoToState(const frc::SwerveModuleState& state, bool openLoop)
     = moduleTurnSpeed * constants::swerve::physical::DRIVE_STEER_COUPLING;
 
   units::radians_per_second_t velocityToGoTo
-    = ConvertWheelVelocityToMotorVelocity(optimizedState.speed)
-    - driveRateBackout;
+    = ConvertWheelVelocityToMotorVelocity(stateToGoTo.speed) - driveRateBackout;
 
   steerMotor.SetControl(
-    steerAngleSetter.WithPosition(optimizedState.angle.Radians()));
+    steerAngleSetter.WithPosition(stateToGoTo.angle.Radians()));
   if (openLoop) {
     driveMotor.SetControl(driveVoltageSetter.WithOutput(
       (velocityToGoTo
@@ -183,8 +184,8 @@ void SwerveModule::GoToState(const frc::SwerveModuleState& state, bool openLoop)
     driveMotor.SetControl(driveVelocitySetter.WithVelocity(velocityToGoTo));
   }
 
-  currentAngleSetpoint = optimizedState.angle.Radians();
-  currentDriveSetpoint = optimizedState.speed;
+  currentAngleSetpoint = stateToGoTo.angle.Radians();
+  currentDriveSetpoint = stateToGoTo.speed;
 }
 
 void SwerveModule::LockSteerAtZero()
@@ -249,8 +250,6 @@ ctre::phoenix::StatusCode SwerveModule::ConfigureDriveMotor(bool invertDrive)
 
   driveConfig.MotorOutput.NeutralMode
     = ctre::phoenix6::signals::NeutralModeValue::Brake;
-  driveConfig.Feedback.SensorToMechanismRatio
-    = constants::swerve::physical::DRIVE_GEARING;
   driveConfig.TorqueCurrent.PeakForwardTorqueCurrent
     = constants::swerve::physical::SLIP_CURRENT.value();
   driveConfig.TorqueCurrent.PeakReverseTorqueCurrent
@@ -261,6 +260,7 @@ ctre::phoenix::StatusCode SwerveModule::ConfigureDriveMotor(bool invertDrive)
   driveConfig.MotorOutput.Inverted = invertDrive
     ? ctre::phoenix6::signals::InvertedValue::Clockwise_Positive
     : ctre::phoenix6::signals::InvertedValue::CounterClockwise_Positive;
+
   return driveMotor.GetConfigurator().Apply(driveConfig);
 }
 
@@ -321,18 +321,20 @@ void SwerveModule::Log(int moduleIndex)
     currentDriveSetpoint.convert<units::feet_per_second>().value());
 }
 
-units::meter_t SwerveModule::ConvertOutputShaftToWheelDistance(
-  units::radian_t shaftRotations)
+units::meter_t SwerveModule::ConvertMotorToWheelDistance(
+  units::radian_t motorRotations)
 {
   return units::ConvertAngularDistanceToLinearDistance(
-    shaftRotations, constants::swerve::physical::DRIVE_WHEEL_DIAMETER / 2);
+    motorRotations / constants::swerve::physical::DRIVE_GEARING,
+    constants::swerve::physical::DRIVE_WHEEL_DIAMETER / 2);
 }
 
-units::meters_per_second_t SwerveModule::ConvertOutputShaftToWheelVelocity(
-  units::radians_per_second_t shaftVelocity)
+units::meters_per_second_t SwerveModule::ConvertMotorSpeedToWheelVelocity(
+  units::radians_per_second_t motorVelocity)
 {
   return units::ConvertAngularVelocityToLinearVelocity(
-    shaftVelocity, constants::swerve::physical::DRIVE_WHEEL_DIAMETER / 2);
+    motorVelocity / constants::swerve::physical::DRIVE_GEARING,
+    constants::swerve::physical::DRIVE_WHEEL_DIAMETER / 2);
 }
 
 units::radian_t SwerveModule::ConvertWheelDistanceToMotorShaftRotations(

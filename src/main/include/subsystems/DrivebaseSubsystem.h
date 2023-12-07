@@ -31,6 +31,7 @@ public:
     std::function<bool()> nextStepButton);
   frc2::CommandPtr CharacterizeDriveMotors(
     std::function<bool()> nextStepButton);
+  frc2::CommandPtr SelfTest();
 
 private:
   str::SwerveDrive swerveDrive{};
