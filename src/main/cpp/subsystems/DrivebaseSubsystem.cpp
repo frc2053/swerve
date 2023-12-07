@@ -50,3 +50,9 @@ frc2::CommandPtr DrivebaseSubsystem::SelfTest()
 {
   return swerveDrive.SelfTest({this});
 }
+
+frc2::CommandPtr DrivebaseSubsystem::MeasureWheelDiam(
+  std::function<bool()> done)
+{
+  return swerveDrive.MeasureWheelDiam(done, {this});
+}

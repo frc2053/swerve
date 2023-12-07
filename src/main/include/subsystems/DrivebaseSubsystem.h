@@ -32,6 +32,7 @@ public:
   frc2::CommandPtr CharacterizeDriveMotors(
     std::function<bool()> nextStepButton);
   frc2::CommandPtr SelfTest();
+  frc2::CommandPtr MeasureWheelDiam(std::function<bool()> done);
 
 private:
   str::SwerveDrive swerveDrive{};

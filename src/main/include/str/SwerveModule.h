@@ -77,6 +77,8 @@ public:
   void SetDriveVoltage(units::volt_t volts);
 
   void LockSteerAtZero();
+  void PushMode(bool onOff);
+  units::radian_t GetMotorRotations();
 
   std::array<ctre::phoenix6::BaseStatusSignal*, 6> GetSignals();
   void OptimizeBusSignals();

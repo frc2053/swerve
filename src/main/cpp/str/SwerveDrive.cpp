@@ -27,6 +27,7 @@
 #include "frc2/command/Commands.h"
 #include "frc2/command/Requirements.h"
 #include "str/SwerveDriveSim.h"
+#include "units/angle.h"
 
 using namespace str;
 
@@ -529,5 +530,37 @@ frc2::CommandPtr SwerveDrive::SelfTest(frc2::Requirements reqs) {
       frc::SwerveModuleState goBack{-3_fps, frc::Rotation2d{0_deg}};
       SetModuleStates({goBack, goBack, goBack, goBack}, false, true);
     }, reqs).WithTimeout(2_s)
+  );
+}
+
+frc2::CommandPtr SwerveDrive::MeasureWheelDiam(std::function<bool()> done, frc2::Requirements reqs) {
+  return frc2::cmd::Sequence(
+    frc2::cmd::RunOnce([this] {
+      for(int i = 0; i < 4; i++) {
+        swerveModules[i].PushMode(true);
+      }
+      std::cout << "Please push the drivebase forward exactly one foot!\n\n\n\n";
+    }, reqs),
+    frc2::cmd::Race(
+      frc2::cmd::WaitUntil(done),
+      frc2::cmd::Run([this] {
+        for(int i = 0; i < 4; i++) {
+          swerveModules[i].LockSteerAtZero();
+        }
+      }, reqs)
+    ),
+    frc2::cmd::RunOnce([this] {
+      for(int i = 0; i < 4; i++) {
+        units::radian_t motorRotations = swerveModules[i].GetMotorRotations();
+        units::radian_t outputShaftRotations = motorRotations / constants::swerve::physical::DRIVE_GEARING;
+        units::meter_t calculatedWheelRadius = 1_ft / (outputShaftRotations / 1_rad);
+        std::cout << fmt::format("Drive motor rotated {} times \n Output shaft rotated {} times. \n Your calculated wheel radius is {} meters!\n\n\n\n", motorRotations.value(), outputShaftRotations.value(), calculatedWheelRadius.value());
+      }
+    }, reqs),
+    frc2::cmd::RunOnce([this] {
+      for(int i = 0; i < 4; i++) {
+        swerveModules[i].PushMode(false);
+      }
+    }, reqs)
   );
 }

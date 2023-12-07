@@ -66,6 +66,9 @@ public:
 
   frc2::CommandPtr SelfTest(frc2::Requirements reqs);
 
+  frc2::CommandPtr MeasureWheelDiam(
+    std::function<bool()> done, frc2::Requirements reqs);
+
 private:
   std::array<SwerveModule, 4> swerveModules
     = {SwerveModule{SwerveModuleConstants{constants::swerve::can::FL_DRIVE,

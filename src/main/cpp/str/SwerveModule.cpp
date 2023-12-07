@@ -196,6 +196,34 @@ void SwerveModule::LockSteerAtZero()
     steerAngleSetter.WithPosition(optimizedState.angle.Radians()));
 }
 
+void SwerveModule::PushMode(bool onOff)
+{
+  if (onOff) {
+    driveMotor.SetNeutralMode(ctre::phoenix6::signals::NeutralModeValue::Coast);
+  } else {
+    driveMotor.SetNeutralMode(ctre::phoenix6::signals::NeutralModeValue::Brake);
+  }
+  LockSteerAtZero();
+}
+
+units::radian_t SwerveModule::GetMotorRotations()
+{
+  ctre::phoenix::StatusCode status
+    = ctre::phoenix6::BaseStatusSignal::WaitForAll(
+      0_s, drivePositionSignal, driveVelocitySignal);
+  if (!status.IsOK()) {
+    frc::DataLogManager::Log(fmt::format(
+      "Swerve Module GetMotorRotations WaitForAll() status wasn't ok "
+      "it was: {}. More Info: {}",
+      status.GetName(), status.GetDescription()));
+  }
+
+  units::radian_t drivePosition
+    = ctre::phoenix6::BaseStatusSignal::GetLatencyCompensatedValue(
+      drivePositionSignal, driveVelocitySignal);
+  return drivePosition;
+}
+
 void SwerveModule::ResetPosition() { driveMotor.SetPosition(0_rad); }
 
 void SwerveModule::SetSteerVoltage(units::volt_t volts)
