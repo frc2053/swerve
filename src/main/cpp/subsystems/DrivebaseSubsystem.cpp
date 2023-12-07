@@ -4,6 +4,7 @@
 
 #include "subsystems/DrivebaseSubsystem.h"
 
+#include <frc2/command/Commands.h>
 #include <frc2/command/SubsystemBase.h>
 
 DrivebaseSubsystem::DrivebaseSubsystem() = default;
@@ -30,4 +31,15 @@ frc2::CommandPtr DrivebaseSubsystem::DriveFactory(std::function<double()> fow,
     {this})
     .ToPtr()
     .WithName("Drive Factory");
+}
+
+frc2::CommandPtr DrivebaseSubsystem::CharacterizeSteerMotors(
+  std::function<bool()> nextStepButton)
+{
+  return swerveDrive.CharacterizeSteerMotors(nextStepButton, {this});
+}
+frc2::CommandPtr DrivebaseSubsystem::CharacterizeDriveMotors(
+  std::function<bool()> nextStepButton)
+{
+  return swerveDrive.CharacterizeDriveMotors(nextStepButton, {this});
 }

@@ -26,6 +26,11 @@ void RobotContainer::ConfigureBindings()
         = frc::ApplyDeadband<double>(-driverController.GetRightX(), 0.2);
       return std::abs(rotCmd) * rotCmd;
     }));
+
+  driverController.A().OnTrue(driveSub.CharacterizeSteerMotors(
+    [this] { return driverController.GetStartButtonPressed(); }));
+  driverController.B().OnTrue(driveSub.CharacterizeDriveMotors(
+    [this] { return driverController.GetStartButtonPressed(); }));
 }
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand()

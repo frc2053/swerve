@@ -8,6 +8,7 @@
 #include <frc/geometry/Pose2d.h>
 #include <frc/kinematics/SwerveDriveKinematics.h>
 #include <frc/smartdashboard/Field2d.h>
+#include <frc2/command/CommandPtr.h>
 #include <networktables/DoubleArrayTopic.h>
 #include <networktables/NetworkTable.h>
 #include <networktables/NetworkTableInstance.h>
@@ -15,6 +16,7 @@
 #include <units/current.h>
 
 #include <array>
+#include <functional>
 #include <memory>
 
 #include <ctre/phoenix6/Pigeon2.hpp>
@@ -26,6 +28,7 @@
 #include "frc/geometry/Rotation2d.h"
 #include "frc/kinematics/SwerveModulePosition.h"
 #include "str/SwerveDriveSim.h"
+#include "units/angular_velocity.h"
 
 namespace str {
 class SwerveDrive {
@@ -53,6 +56,12 @@ public:
   frc::Pose2d GetSimPose() const;
   units::ampere_t GetCurrentDraw() const;
   std::array<frc::Pose2d, 4> GetModulePoses() const;
+
+  frc2::CommandPtr CharacterizeSteerMotors(
+    std::function<bool()> nextStepButton, frc2::Requirements reqs);
+
+  frc2::CommandPtr CharacterizeDriveMotors(
+    std::function<bool()> nextStepButton, frc2::Requirements reqs);
 
 private:
   std::array<SwerveModule, 4> swerveModules
@@ -82,6 +91,7 @@ private:
 
   ctre::phoenix6::hardware::Pigeon2 imu{constants::swerve::can::IMU, "*"};
   units::radian_t imuYaw{};
+  units::radians_per_second_t imuRate{};
 
   std::array<ctre::phoenix6::BaseStatusSignal*, 26> allModuleSignals;
 
@@ -101,5 +111,14 @@ private:
   nt::NetworkTableInstance ntInst{nt::NetworkTableInstance::GetDefault()};
   std::shared_ptr<nt::NetworkTable> table{ntInst.GetTable("swerveInfo")};
   frc::Field2d ntField{};
+
+  // Characterization
+  //  This is for characterization
+  wpi::json flSteerModuleData{};
+  wpi::json driveData{};
+
+  units::volt_t quasistaticVolts = 0_V;
+  static constexpr auto quasistaticStep{0.25_V / 1_s};
+  units::volt_t dynamicStepVolts = 7_V;
 };
 } // namespace str

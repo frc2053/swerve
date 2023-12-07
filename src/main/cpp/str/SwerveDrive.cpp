@@ -15,12 +15,16 @@
 #include <units/angular_velocity.h>
 #include <units/current.h>
 
+#include <fstream>
 #include <iostream>
 
 #include "Constants.h"
 #include "frc/geometry/Rotation2d.h"
 #include "frc/geometry/Twist2d.h"
 #include "frc/kinematics/SwerveModulePosition.h"
+#include "frc2/command/CommandPtr.h"
+#include "frc2/command/Commands.h"
+#include "frc2/command/Requirements.h"
 #include "str/SwerveDriveSim.h"
 
 using namespace str;
@@ -191,5 +195,304 @@ void SwerveDrive::UpdateOdometry()
 
   imuYaw = ctre::phoenix6::BaseStatusSignal::GetLatencyCompensatedValue(
     imu.GetYaw(), imu.GetAngularVelocityZ());
+  imuRate = imu.GetAngularVelocityZ().GetValue();
   poseEstimator.Update(frc::Rotation2d{imuYaw}, modulePostions);
+}
+
+frc2::CommandPtr SwerveDrive::CharacterizeSteerMotors(
+  std::function<bool()> nextStepButton, frc2::Requirements reqs)
+{
+  // clang-format off
+  return frc2::cmd::Sequence(
+    // SLOW FORWARD
+    frc2::cmd::RunOnce([this] {
+      fmt::print("Slow Forward Starting...\n");
+      flSteerModuleData["slow-forward"] = wpi::json::array();
+    }),
+    frc2::cmd::RunEnd([this] {
+      quasistaticVolts = quasistaticVolts + (quasistaticStep * 20_ms);
+      swerveModules[0].SetSteerVoltage(quasistaticVolts);
+
+      const auto& flData = swerveModules[0].GetSteerCharData();
+
+      wpi::json dataToAdd = {
+        frc::Timer::GetFPGATimestamp().value(),
+        flData.motorVoltage.value(),
+        flData.motorAngle.value(),
+        flData.motorVelocity.value()
+      };
+
+      flSteerModuleData["slow-forward"].push_back(dataToAdd);
+    },
+    [this] {
+      swerveModules[0].SetSteerVoltage(0_V);
+      quasistaticVolts = 0_V;
+    }, reqs)
+    .Until(nextStepButton),
+    frc2::cmd::Wait(1_s),
+    // SLOW BACKWARDS
+    frc2::cmd::RunOnce([this] {
+      fmt::print("Slow Backwards Starting...\n");
+      flSteerModuleData["slow-backward"] = wpi::json::array();
+    }),
+    frc2::cmd::RunEnd([this] {
+      quasistaticVolts = quasistaticVolts + (quasistaticStep * 20_ms);
+      swerveModules[0].SetSteerVoltage(-quasistaticVolts);
+
+      const auto& flData = swerveModules[0].GetSteerCharData();
+
+      wpi::json dataToAdd = {
+        frc::Timer::GetFPGATimestamp().value(),
+        flData.motorVoltage.value(),
+        flData.motorAngle.value(),
+        flData.motorVelocity.value()
+      };
+
+      flSteerModuleData["slow-backward"].push_back(dataToAdd);
+    },
+    [this] {
+      swerveModules[0].SetSteerVoltage(0_V);
+      quasistaticVolts = 0_V;
+    }, reqs)
+    .Until(nextStepButton),
+    frc2::cmd::Wait(1_s),
+    // FAST FORWARD
+    frc2::cmd::RunOnce([this] {
+      fmt::print("Fast Forward Starting...\n");
+      flSteerModuleData["fast-forward"] = wpi::json::array();
+    }),
+    frc2::cmd::RunEnd([this] {
+      swerveModules[0].SetSteerVoltage(7_V);
+
+      const auto& flData = swerveModules[0].GetSteerCharData();
+
+      wpi::json dataToAdd = {
+        frc::Timer::GetFPGATimestamp().value(),
+        flData.motorVoltage.value(),
+        flData.motorAngle.value(),
+        flData.motorVelocity.value()
+      };
+
+      flSteerModuleData["fast-forward"].push_back(dataToAdd);
+    },
+    [this] {
+      swerveModules[0].SetSteerVoltage(0_V);
+    }, reqs)
+    .Until(nextStepButton),
+    frc2::cmd::Wait(1_s),
+    // FAST BACKWARDS
+    frc2::cmd::RunOnce([this] {
+      fmt::print("Fast Backward Starting...\n");
+      flSteerModuleData["fast-backward"] = wpi::json::array();
+    }),
+    frc2::cmd::RunEnd([this] {
+      swerveModules[0].SetSteerVoltage(-7_V);
+
+      const auto& flData = swerveModules[0].GetSteerCharData();
+
+      wpi::json dataToAdd = {
+        frc::Timer::GetFPGATimestamp().value(),
+        flData.motorVoltage.value(),
+        flData.motorAngle.value(),
+        flData.motorVelocity.value()
+      };
+
+      flSteerModuleData["fast-backward"].push_back(dataToAdd);
+    },
+    [this] {
+      swerveModules[0].SetSteerVoltage(0_V);
+    }, reqs)
+    .Until(nextStepButton),
+    frc2::cmd::Wait(1_s),
+    frc2::cmd::RunOnce([this] {
+      fmt::print("Done characterizing...\n");
+      flSteerModuleData["sysid"] = "true";
+      flSteerModuleData["test"] = "Simple";
+      flSteerModuleData["units"] = "Radians";
+      flSteerModuleData["unitsPerRotation"] = 1.0;
+      std::ofstream outFile;
+      outFile.open("steerCharData.json");
+      outFile << flSteerModuleData.dump() << std::endl;
+      outFile.close();
+    })
+  );
+}
+
+frc2::CommandPtr SwerveDrive::CharacterizeDriveMotors(
+  std::function<bool()> nextStepButton, frc2::Requirements reqs)
+{
+  // clang-format off
+  return frc2::cmd::Sequence(
+    // SLOW FORWARD
+    frc2::cmd::RunOnce([this] {
+      fmt::print("Slow Forward Starting...\n");
+      driveData["slow-forward"] = wpi::json::array();
+    }),
+    frc2::cmd::RunEnd([this] {
+      quasistaticVolts = quasistaticVolts + (quasistaticStep * 20_ms);
+      swerveModules[0].SetDriveVoltage(quasistaticVolts);
+      swerveModules[1].SetDriveVoltage(quasistaticVolts);
+      swerveModules[2].SetDriveVoltage(quasistaticVolts);
+      swerveModules[3].SetDriveVoltage(quasistaticVolts);
+
+      for(int i = 0; i < 4; i++) {
+        swerveModules[i].LockSteerAtZero();
+      }
+
+      const auto& flData = swerveModules[0].GetDriveCharData();
+      const auto& frData = swerveModules[1].GetDriveCharData();
+      const auto& blData = swerveModules[2].GetDriveCharData();
+      const auto& brData = swerveModules[3].GetDriveCharData();
+
+      wpi::json dataToAdd = {
+        frc::Timer::GetFPGATimestamp().value(),
+        ((flData.motorVoltage + blData.motorVoltage) / 2).value(),
+        ((frData.motorVoltage + brData.motorVoltage) / 2).value(),
+        ((flData.motorPosition + blData.motorPosition) / 2).value(),
+        ((frData.motorPosition + brData.motorPosition) / 2).value(),
+        ((flData.motorVelocity + blData.motorVelocity) / 2).value(),
+        ((frData.motorVelocity + brData.motorVelocity) / 2).value(),
+        imuYaw.value(),
+        imuRate.value()
+      };
+
+      driveData["slow-forward"].push_back(dataToAdd);
+    },
+    [this] {
+      swerveModules[0].SetDriveVoltage(0_V);
+      quasistaticVolts = 0_V;
+    }, reqs)
+    .Until(nextStepButton),
+    frc2::cmd::Wait(1_s),
+    // SLOW BACKWARDS
+    frc2::cmd::RunOnce([this] {
+      fmt::print("Slow Backwards Starting...\n");
+      driveData["slow-backward"] = wpi::json::array();
+    }),
+    frc2::cmd::RunEnd([this] {
+      quasistaticVolts = quasistaticVolts + (quasistaticStep * 20_ms);
+      swerveModules[0].SetDriveVoltage(-quasistaticVolts);
+      swerveModules[1].SetDriveVoltage(-quasistaticVolts);
+      swerveModules[2].SetDriveVoltage(-quasistaticVolts);
+      swerveModules[3].SetDriveVoltage(-quasistaticVolts);
+
+      for(int i = 0; i < 4; i++) {
+        swerveModules[i].LockSteerAtZero();
+      }
+
+      const auto& flData = swerveModules[0].GetDriveCharData();
+      const auto& frData = swerveModules[1].GetDriveCharData();
+      const auto& blData = swerveModules[2].GetDriveCharData();
+      const auto& brData = swerveModules[3].GetDriveCharData();
+
+      wpi::json dataToAdd = {
+        frc::Timer::GetFPGATimestamp().value(),
+        ((flData.motorVoltage + blData.motorVoltage) / 2).value(),
+        ((frData.motorVoltage + brData.motorVoltage) / 2).value(),
+        ((flData.motorPosition + blData.motorPosition) / 2).value(),
+        ((frData.motorPosition + brData.motorPosition) / 2).value(),
+        ((flData.motorVelocity + blData.motorVelocity) / 2).value(),
+        ((frData.motorVelocity + brData.motorVelocity) / 2).value(),
+        imuYaw.value(),
+        imuRate.value()
+      };
+
+      driveData["slow-backward"].push_back(dataToAdd);
+    },
+    [this] {
+      swerveModules[0].SetDriveVoltage(0_V);
+      quasistaticVolts = 0_V;
+    }, reqs)
+    .Until(nextStepButton),
+    frc2::cmd::Wait(1_s),
+    // FAST FORWARD
+    frc2::cmd::RunOnce([this] {
+      fmt::print("Fast Forward Starting...\n");
+      driveData["fast-forward"] = wpi::json::array();
+    }),
+    frc2::cmd::RunEnd([this] {
+      swerveModules[0].SetDriveVoltage(7_V);
+      swerveModules[1].SetDriveVoltage(7_V);
+      swerveModules[2].SetDriveVoltage(7_V);
+      swerveModules[3].SetDriveVoltage(7_V);
+
+      for(int i = 0; i < 4; i++) {
+        swerveModules[i].LockSteerAtZero();
+      }
+
+      const auto& flData = swerveModules[0].GetDriveCharData();
+      const auto& frData = swerveModules[1].GetDriveCharData();
+      const auto& blData = swerveModules[2].GetDriveCharData();
+      const auto& brData = swerveModules[3].GetDriveCharData();
+
+      wpi::json dataToAdd = {
+        frc::Timer::GetFPGATimestamp().value(),
+        ((flData.motorVoltage + blData.motorVoltage) / 2).value(),
+        ((frData.motorVoltage + brData.motorVoltage) / 2).value(),
+        ((flData.motorPosition + blData.motorPosition) / 2).value(),
+        ((frData.motorPosition + brData.motorPosition) / 2).value(),
+        ((flData.motorVelocity + blData.motorVelocity) / 2).value(),
+        ((frData.motorVelocity + brData.motorVelocity) / 2).value(),
+        imuYaw.value(),
+        imuRate.value()
+      };
+
+      driveData["fast-forward"].push_back(dataToAdd);
+    },
+    [this] {
+      swerveModules[0].SetDriveVoltage(0_V);
+    }, reqs)
+    .Until(nextStepButton),
+    frc2::cmd::Wait(1_s),
+    // FAST BACKWARDS
+    frc2::cmd::RunOnce([this] {
+      fmt::print("Fast Backward Starting...\n");
+      driveData["fast-backward"] = wpi::json::array();
+    }),
+    frc2::cmd::RunEnd([this] {
+      swerveModules[0].SetDriveVoltage(-7_V);
+      swerveModules[1].SetDriveVoltage(-7_V);
+      swerveModules[2].SetDriveVoltage(-7_V);
+      swerveModules[3].SetDriveVoltage(-7_V);
+
+      for(int i = 0; i < 4; i++) {
+        swerveModules[i].LockSteerAtZero();
+      }
+
+      const auto& flData = swerveModules[0].GetDriveCharData();
+      const auto& frData = swerveModules[1].GetDriveCharData();
+      const auto& blData = swerveModules[2].GetDriveCharData();
+      const auto& brData = swerveModules[3].GetDriveCharData();
+
+      wpi::json dataToAdd = {
+        frc::Timer::GetFPGATimestamp().value(),
+        ((flData.motorVoltage + blData.motorVoltage) / 2).value(),
+        ((frData.motorVoltage + brData.motorVoltage) / 2).value(),
+        ((flData.motorPosition + blData.motorPosition) / 2).value(),
+        ((frData.motorPosition + brData.motorPosition) / 2).value(),
+        ((flData.motorVelocity + blData.motorVelocity) / 2).value(),
+        ((frData.motorVelocity + brData.motorVelocity) / 2).value(),
+        imuYaw.value(),
+        imuRate.value()
+      };
+
+      driveData["fast-backward"].push_back(dataToAdd);
+    },
+    [this] {
+      swerveModules[0].SetDriveVoltage(0_V);
+    }, reqs)
+    .Until(nextStepButton),
+    frc2::cmd::Wait(1_s),
+    frc2::cmd::RunOnce([this] {
+      fmt::print("Done characterizing...\n");
+      driveData["sysid"] = "true";
+      driveData["test"] = "Drivetrain";
+      driveData["units"] = "Meters";
+      driveData["unitsPerRotation"] = (constants::swerve::physical::DRIVE_WHEEL_DIAMETER * std::numbers::pi).value();
+      std::ofstream outFile;
+      outFile.open("driveCharData.json");
+      outFile << driveData.dump() << std::endl;
+      outFile.close();
+    })
+  );
 }

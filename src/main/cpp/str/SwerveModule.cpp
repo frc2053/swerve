@@ -91,8 +91,12 @@ DriveCharData SwerveModule::GetDriveCharData()
   ctre::phoenix6::BaseStatusSignal::WaitForAll(
     0_s, drivePositionSignal, driveVelocitySignal, driveVoltageSignal);
 
+  units::radian_t drivePosition
+    = ctre::phoenix6::BaseStatusSignal::GetLatencyCompensatedValue(
+      drivePositionSignal, driveVelocitySignal);
+
   return DriveCharData{driveVoltageSignal.GetValue(),
-    ConvertOutputShaftToWheelDistance(drivePositionSignal.GetValue()),
+    ConvertOutputShaftToWheelDistance(drivePosition),
     ConvertOutputShaftToWheelVelocity(driveVelocitySignal.GetValue())};
 }
 
@@ -101,8 +105,12 @@ SteerCharData SwerveModule::GetSteerCharData()
   ctre::phoenix6::BaseStatusSignal::WaitForAll(
     0_s, steerAngleSignal, steerAngleVelocitySignal, steerVoltageSignal);
 
-  return SteerCharData{steerVoltageSignal.GetValue(),
-    steerAngleSignal.GetValue(), steerAngleVelocitySignal.GetValue()};
+  units::radian_t steerPosition
+    = ctre::phoenix6::BaseStatusSignal::GetLatencyCompensatedValue(
+      steerAngleSignal, steerAngleVelocitySignal);
+
+  return SteerCharData{steerVoltageSignal.GetValue(), steerPosition,
+    steerAngleVelocitySignal.GetValue()};
 }
 
 frc::SwerveModulePosition SwerveModule::GetPosition(bool refresh)
@@ -177,6 +185,14 @@ void SwerveModule::GoToState(const frc::SwerveModuleState& state, bool openLoop)
 
   currentAngleSetpoint = optimizedState.angle.Radians();
   currentDriveSetpoint = optimizedState.speed;
+}
+
+void SwerveModule::LockSteerAtZero()
+{
+  frc::SwerveModuleState optimizedState = frc::SwerveModuleState::Optimize(
+    frc::SwerveModuleState{0_mps, frc::Rotation2d{0_rad}}, currentState.angle);
+  steerMotor.SetControl(
+    steerAngleSetter.WithPosition(optimizedState.angle.Radians()));
 }
 
 void SwerveModule::ResetPosition() { driveMotor.SetPosition(0_rad); }

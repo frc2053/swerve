@@ -27,6 +27,11 @@ public:
   frc2::CommandPtr DriveFactory(std::function<double()> fow,
     std::function<double()> side, std::function<double()> rot);
 
+  frc2::CommandPtr CharacterizeSteerMotors(
+    std::function<bool()> nextStepButton);
+  frc2::CommandPtr CharacterizeDriveMotors(
+    std::function<bool()> nextStepButton);
+
 private:
   str::SwerveDrive swerveDrive{};
 };
