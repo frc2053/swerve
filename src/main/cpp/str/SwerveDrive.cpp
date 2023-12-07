@@ -18,6 +18,10 @@
 #include <iostream>
 
 #include "Constants.h"
+#include "frc/geometry/Rotation2d.h"
+#include "frc/geometry/Twist2d.h"
+#include "frc/kinematics/SwerveModulePosition.h"
+#include "str/SwerveDriveSim.h"
 
 using namespace str;
 
@@ -103,6 +107,10 @@ void SwerveDrive::Log()
 
   ntField.GetObject("Estimated Robot Pose")->SetPose(GetPose());
   ntField.GetObject("Estimated Robot Modules")->SetPoses(GetModulePoses());
+
+  for (int i = 0; i < swerveModules.size(); i++) {
+    swerveModules[i].Log(i);
+  }
 }
 
 void SwerveDrive::SimulationUpdate()
@@ -121,37 +129,30 @@ void SwerveDrive::SimulationUpdate()
 
   swerveSim.Update(frc::TimedRobot::kDefaultPeriod);
 
-  std::array<Eigen::Matrix<double, 2, 1>, 4> driveStates
-    = swerveSim.GetDriveStates();
-  std::array<Eigen::Matrix<double, 2, 1>, 4> steerStates
-    = swerveSim.GetSteerStates();
-  totalCurrentDraw = 0_A;
-  std::array<units::ampere_t, 4> driveCurrents
-    = swerveSim.GetDriveCurrentDraw(false);
-  std::array<units::ampere_t, 4> steerCurrents
-    = swerveSim.GetSteerCurrentDraw(false);
-  for (const auto& current : driveCurrents) {
-    totalCurrentDraw += current;
-  }
-  for (const auto& current : steerCurrents) {
-    totalCurrentDraw += current;
-  }
+  totalCurrentDraw
+    = swerveSim.GetSteerCurrentDraw() + swerveSim.GetDriveCurrentDraw();
+
+  std::array<SimState, 4> state = swerveSim.GetState();
+  std::array<frc::SwerveModulePosition, 4> positions{};
   for (int i = 0; i < swerveModules.size(); i++) {
-    swerveModules[i].SimulationUpdate(units::meter_t{driveStates[i](0, 0)},
-      units::meters_per_second_t{driveStates[i](1, 0)}, driveCurrents[i],
-      units::radian_t{steerStates[i](0, 0)},
-      units::radians_per_second_t{steerStates[i](1, 0)}, steerCurrents[i]);
+    swerveModules[i].SimulationUpdate(state[i].drivePos, state[i].driveVel,
+      state[i].steerPos, state[i].steerVel);
+    frc::SwerveModulePosition currentPos = swerveModules[i].GetCachedPosition();
+    positions[i] = frc::SwerveModulePosition{
+      currentPos.distance - lastPositions[i].distance, currentPos.angle};
+    lastPositions[i].distance = currentPos.distance;
   }
 
-  imuSimState.SetRawYaw(-swerveSim.GetPose().Rotation().Radians());
+  frc::Twist2d change
+    = constants::swerve::physical::KINEMATICS.ToTwist2d(positions);
+  lastAngle = lastAngle + frc::Rotation2d{change.dtheta};
+  imuSimState.SetRawYaw(lastAngle.Degrees());
 }
 
 frc::Pose2d SwerveDrive::GetPose() const
 {
   return poseEstimator.GetEstimatedPosition();
 }
-
-frc::Pose2d SwerveDrive::GetSimPose() const { return swerveSim.GetPose(); }
 
 units::ampere_t SwerveDrive::GetCurrentDraw() const { return totalCurrentDraw; }
 

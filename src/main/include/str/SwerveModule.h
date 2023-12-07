@@ -29,6 +29,7 @@
 
 #include "Constants.h"
 #include "Units.h"
+#include "ctre/phoenix6/controls/PositionVoltage.hpp"
 
 namespace str {
 
@@ -58,9 +59,8 @@ public:
   explicit SwerveModule(const SwerveModuleConstants& moduleConstants);
 
   void SimulationUpdate(units::meter_t driveDistance,
-    units::meters_per_second_t driveVelocity, units::ampere_t driveCurrent,
-    units::radian_t steerDistance, units::radians_per_second_t steerVelocity,
-    units::ampere_t steerCurrent);
+    units::meters_per_second_t driveVelocity, units::radian_t steerDistance,
+    units::radians_per_second_t steerVelocity);
 
   DriveCharData GetDriveCharData();
   SteerCharData GetSteerCharData();
@@ -77,6 +77,8 @@ public:
 
   std::array<ctre::phoenix6::BaseStatusSignal*, 6> GetSignals();
   void OptimizeBusSignals();
+
+  void Log(int moduleIndex);
 
   static units::meter_t ConvertOutputShaftToWheelDistance(
     units::radian_t shaftRotations);
@@ -132,11 +134,14 @@ private:
   constants::swerve::ModuleSteerGains currentSteeringGains{
     constants::swerve::steerGains};
 
+  units::radian_t currentAngleSetpoint{0};
+  units::meters_per_second_t currentDriveSetpoint{0};
+
   // SIM STUFF
   ctre::phoenix6::sim::TalonFXSimState& simSteerMotor
     = steerMotor.GetSimState();
   ctre::phoenix6::sim::TalonFXSimState& simDriveMotor
-    = steerMotor.GetSimState();
+    = driveMotor.GetSimState();
   ctre::phoenix6::sim::CANcoderSimState& simEncoder
     = steerEncoder.GetSimState();
 };

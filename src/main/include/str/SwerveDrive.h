@@ -14,6 +14,7 @@
 #include <networktables/StringTopic.h>
 #include <units/current.h>
 
+#include <array>
 #include <memory>
 
 #include <ctre/phoenix6/Pigeon2.hpp>
@@ -22,6 +23,8 @@
 #include "Constants.h"
 #include "SwerveDriveSim.h"
 #include "SwerveModule.h"
+#include "frc/geometry/Rotation2d.h"
+#include "frc/kinematics/SwerveModulePosition.h"
 #include "str/SwerveDriveSim.h"
 
 namespace str {
@@ -86,6 +89,8 @@ private:
   SwerveDriveSim swerveSim{};
   ctre::phoenix6::sim::Pigeon2SimState& imuSimState = imu.GetSimState();
   units::ampere_t totalCurrentDraw{0};
+  std::array<frc::SwerveModulePosition, 4> lastPositions{};
+  frc::Rotation2d lastAngle{};
 
   // Stats for fast update time
   units::second_t lastTime = 0_s;

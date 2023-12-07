@@ -21,6 +21,11 @@
 #include <ctre/phoenix6/StatusSignal.hpp>
 #include <ctre/phoenix6/signals/SpnEnums.hpp>
 
+#include "Constants.h"
+#include "frc/MathUtil.h"
+#include "frc/RobotController.h"
+#include "frc/smartdashboard/SmartDashboard.h"
+
 using namespace str;
 
 SwerveModule::SwerveModule(const SwerveModuleConstants& moduleConstants)
@@ -52,37 +57,33 @@ SwerveModule::SwerveModule(const SwerveModuleConstants& moduleConstants)
                   "More info: {}",
         steerEncoderCode.GetName(), steerEncoderCode.GetDescription()));
   }
+
+  driveVelocitySetter.UpdateFreqHz = 0_Hz;
+  driveVoltageSetter.UpdateFreqHz = 0_Hz;
+  steerAngleSetter.UpdateFreqHz = 0_Hz;
+  steerVoltageSetter.UpdateFreqHz = 0_Hz;
 }
 
 void SwerveModule::SimulationUpdate(units::meter_t driveDistance,
-  units::meters_per_second_t driveVelocity, units::ampere_t driveCurrent,
-  units::radian_t steerDistance, units::radians_per_second_t steerVelocity,
-  units::ampere_t steerCurrent)
+  units::meters_per_second_t driveVelocity, units::radian_t steerDistance,
+  units::radians_per_second_t steerVelocity)
 {
-  // std::cout << fmt::format("driveDist: {}, driveVel: {}, driveCurrent: {}, "
-  //                          "steerDist: {}, steerVel: {}, steerCurrent: {}\n",
-  //   driveDistance.value(), driveVelocity.value(), driveCurrent.value(),
-  //   steerDistance.value(), steerVelocity.value(), steerCurrent.value());
   units::radian_t converted
     = ConvertWheelDistanceToMotorShaftRotations(driveDistance);
-  // std::cout << fmt::format("converted drive dist: {}\n", converted.value());
   simDriveMotor.SetRawRotorPosition(converted);
   simDriveMotor.SetRotorVelocity(
     ConvertWheelVelocityToMotorVelocity(driveVelocity));
-  // TODO: Might need to set supply voltage
-  // simDriveMotor.SetSupplyVoltage();
+  simDriveMotor.SetSupplyVoltage(frc::RobotController::GetBatteryVoltage());
 
   simSteerMotor.SetRawRotorPosition(
     ConvertOutputShaftPositionToMotorShaftPosition(steerDistance));
   simSteerMotor.SetRotorVelocity(
     ConvertOutputShaftVelocityToMotorShaftVelocity(steerVelocity));
-  // TODO: Might need to set supply voltage
-  // simSteerMotor.SetSupplyVoltage();
+  simSteerMotor.SetSupplyVoltage(frc::RobotController::GetBatteryVoltage());
 
   simEncoder.SetRawPosition(steerDistance);
   simEncoder.SetVelocity(steerVelocity);
-  // TODO: Might need to set supply voltage
-  // simEncoder.SetSupplyVoltage();
+  simEncoder.SetSupplyVoltage(frc::RobotController::GetBatteryVoltage());
 }
 
 DriveCharData SwerveModule::GetDriveCharData()
@@ -173,6 +174,9 @@ void SwerveModule::GoToState(const frc::SwerveModuleState& state, bool openLoop)
   } else {
     driveMotor.SetControl(driveVelocitySetter.WithVelocity(velocityToGoTo));
   }
+
+  currentAngleSetpoint = optimizedState.angle.Radians();
+  currentDriveSetpoint = optimizedState.speed;
 }
 
 void SwerveModule::ResetPosition() { driveMotor.SetPosition(0_rad); }
@@ -261,9 +265,6 @@ ctre::phoenix::StatusCode SwerveModule::ConfigureSteerMotor(bool invertSteer)
 
   steerConfig.MotorOutput.NeutralMode
     = ctre::phoenix6::signals::NeutralModeValue::Brake;
-  // TODO: Not sure if this is correct...
-  steerConfig.Feedback.SensorToMechanismRatio
-    = constants::swerve::physical::STEER_GEARING;
   steerConfig.Feedback.FeedbackRemoteSensorID = steerEncoder.GetDeviceID();
   steerConfig.Feedback.FeedbackSensorSource
     = ctre::phoenix6::signals::FeedbackSensorSourceValue::FusedCANcoder;
@@ -273,10 +274,10 @@ ctre::phoenix::StatusCode SwerveModule::ConfigureSteerMotor(bool invertSteer)
     ? ctre::phoenix6::signals::InvertedValue::Clockwise_Positive
     : ctre::phoenix6::signals::InvertedValue::CounterClockwise_Positive;
   steerConfig.ClosedLoopGeneral.ContinuousWrap = true;
-  steerConfig.MotionMagic.MotionMagicAcceleration
-    = constants::swerve::physical::STEER_MOTION_MAGIC_ACCEL.value();
   steerConfig.MotionMagic.MotionMagicCruiseVelocity
-    = constants::swerve::physical::STEER_MOTION_MAGIC_VEL.value();
+    = 100 / constants::swerve::physical::STEER_GEARING;
+  steerConfig.MotionMagic.MotionMagicAcceleration
+    = steerConfig.MotionMagic.MotionMagicCruiseVelocity / 0.100;
 
   return steerMotor.GetConfigurator().Apply(steerConfig);
 }
@@ -287,6 +288,21 @@ ctre::phoenix::StatusCode SwerveModule::ConfigureSteerEncoder(
   ctre::phoenix6::configs::CANcoderConfiguration encoderConfig{};
   encoderConfig.MagnetSensor.MagnetOffset = encoderOffset;
   return steerEncoder.GetConfigurator().Apply(encoderConfig);
+}
+
+void SwerveModule::Log(int moduleIndex)
+{
+  frc::SwerveModuleState state = GetState();
+
+  std::string table = "Drivebase/Module " + std::to_string(moduleIndex) + "/";
+  frc::SmartDashboard::PutNumber(table + "Steer Degrees",
+    frc::AngleModulus(state.angle.Radians()).convert<units::degrees>().value());
+  frc::SmartDashboard::PutNumber(table + "Steer Target Degrees",
+    currentAngleSetpoint.convert<units::degrees>().value());
+  frc::SmartDashboard::PutNumber(table + "Drive Velocity FPS",
+    state.speed.convert<units::feet_per_second>().value());
+  frc::SmartDashboard::PutNumber(table + "Drive Velocity Target FPS",
+    currentDriveSetpoint.convert<units::feet_per_second>().value());
 }
 
 units::meter_t SwerveModule::ConvertOutputShaftToWheelDistance(

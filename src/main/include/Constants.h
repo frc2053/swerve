@@ -39,9 +39,9 @@ namespace swerve {
   };
 
   static constexpr ModuleDriveGains driveGains{
-    units::ka_unit_t{0.3}, units::kv_unit_t{2.5}, .25_V, 3.0, 0.0, 0.0};
+    units::ka_unit_t{0.3}, units::kv_unit_t{2.5}, .25_V, 1.0, 0.0, 0.0};
   static constexpr ModuleSteerGains steerGains{radial_ka_unit_t{0.01},
-    frc::DCMotor::radians_per_second_per_volt_t{.25}, 0.5_V, 20.0, 0.0, 0.0};
+    frc::DCMotor::radians_per_second_per_volt_t{.25}, 0.5_V, 10, 0.0, 0.0};
 
   namespace can {
     static constexpr int FL_DRIVE = 2;
@@ -74,7 +74,7 @@ namespace swerve {
     static constexpr units::scalar_t DRIVE_GEARING
       = (50.0 / 14.0) * (17.0 / 27.0) * (45.0 / 15.0); // SDS L2
     static constexpr units::scalar_t STEER_GEARING
-      = (50.0 / 14.0) * (10.0 / 60.0);
+      = (50.0 / 14.0) * (60.0 / 10.0);
     static constexpr units::scalar_t DRIVE_STEER_COUPLING = (50.0 / 14.0);
     static constexpr units::meters_per_second_t MAX_LINEAR_SPEED
       = units::ConvertAngularVelocityToLinearVelocity(
@@ -91,11 +91,6 @@ namespace swerve {
     static constexpr double BR_ENCODER_OFFSET = 0;
 
     static constexpr units::ampere_t SLIP_CURRENT = 400_A;
-
-    static constexpr units::radians_per_second_t STEER_MOTION_MAGIC_VEL
-      = 10.0_rad_per_s;
-    static constexpr units::radians_per_second_squared_t
-      STEER_MOTION_MAGIC_ACCEL{100};
 
     static constexpr std::array<frc::Translation2d, 4> moduleLocations{
       frc::Translation2d{WHEELBASE_LENGTH / 2, WHEELBASE_WIDTH / 2},
