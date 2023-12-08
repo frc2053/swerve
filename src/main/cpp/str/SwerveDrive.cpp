@@ -265,7 +265,7 @@ frc2::CommandPtr SwerveDrive::CharacterizeSteerMotors(
       flSteerModuleData["fast-forward"] = wpi::json::array();
     }),
     frc2::cmd::RunEnd([this] {
-      swerveModules[0].SetSteerVoltage(7_V);
+      swerveModules[0].SetSteerVoltage(12_V);
 
       const auto& flData = swerveModules[0].GetSteerCharData();
 
@@ -289,7 +289,7 @@ frc2::CommandPtr SwerveDrive::CharacterizeSteerMotors(
       flSteerModuleData["fast-backward"] = wpi::json::array();
     }),
     frc2::cmd::RunEnd([this] {
-      swerveModules[0].SetSteerVoltage(-7_V);
+      swerveModules[0].SetSteerVoltage(-12_V);
 
       const auto& flData = swerveModules[0].GetSteerCharData();
 
@@ -312,7 +312,7 @@ frc2::CommandPtr SwerveDrive::CharacterizeSteerMotors(
       flSteerModuleData["sysid"] = "true";
       flSteerModuleData["test"] = "Simple";
       flSteerModuleData["units"] = "Radians";
-      flSteerModuleData["unitsPerRotation"] = 1.0;
+      flSteerModuleData["unitsPerRotation"] = std::numbers::pi * 2;
       std::ofstream outFile;
       outFile.open("/home/lvuser/steerCharData.json");
       outFile << flSteerModuleData.dump() << std::endl;
@@ -494,7 +494,7 @@ frc2::CommandPtr SwerveDrive::CharacterizeDriveMotors(
       driveData["units"] = "Meters";
       driveData["unitsPerRotation"] = (constants::swerve::physical::DRIVE_WHEEL_DIAMETER * std::numbers::pi).value();
       std::ofstream outFile;
-      outFile.open("driveCharData.json");
+      outFile.open("/home/lvuser/driveCharData.json");
       outFile << driveData.dump() << std::endl;
       outFile.close();
     })

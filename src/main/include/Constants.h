@@ -41,7 +41,8 @@ namespace swerve {
   static constexpr ModuleDriveGains driveGains{
     units::ka_unit_t{0.3}, units::kv_unit_t{2.5}, .25_V, 50, 0.0, 0.0};
   static constexpr ModuleSteerGains steerGains{radial_ka_unit_t{0.039166},
-    frc::DCMotor::radians_per_second_per_volt_t{0.037461}, 0.0_V, 100, 0.0, 0.0};
+    frc::DCMotor::radians_per_second_per_volt_t{0.037461}, 0.0_V, 100, 0.0,
+    0.0};
 
   namespace can {
     static constexpr int FL_DRIVE = 2;
