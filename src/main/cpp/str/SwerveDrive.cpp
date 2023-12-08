@@ -314,9 +314,10 @@ frc2::CommandPtr SwerveDrive::CharacterizeSteerMotors(
       flSteerModuleData["units"] = "Radians";
       flSteerModuleData["unitsPerRotation"] = 1.0;
       std::ofstream outFile;
-      outFile.open("steerCharData.json");
+      outFile.open("/home/lvuser/steerCharData.json");
       outFile << flSteerModuleData.dump() << std::endl;
       outFile.close();
+      fmt::print("Wrote file...\n");
     })
   );
 }

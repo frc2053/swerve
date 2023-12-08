@@ -159,10 +159,15 @@ frc::SwerveModuleState SwerveModule::GetState() const { return currentState; }
 void SwerveModule::GoToState(
   const frc::SwerveModuleState& state, bool openLoop, bool optimize)
 {
+
+  fmt::print("state: {}\n", state.angle.Degrees().value());  
+
   frc::SwerveModuleState stateToGoTo = state;
   if (optimize) {
     stateToGoTo = frc::SwerveModuleState::Optimize(state, currentState.angle);
   }
+
+  fmt::print("stateToGoTo: {}\n", stateToGoTo.angle.Degrees().value());  
 
   units::radians_per_second_t moduleTurnSpeed
     = steerAngleVelocitySignal.GetValue();

@@ -40,8 +40,8 @@ namespace swerve {
 
   static constexpr ModuleDriveGains driveGains{
     units::ka_unit_t{0.3}, units::kv_unit_t{2.5}, .25_V, 50, 0.0, 0.0};
-  static constexpr ModuleSteerGains steerGains{radial_ka_unit_t{0.01},
-    frc::DCMotor::radians_per_second_per_volt_t{.25}, 0.5_V, 10, 0.0, 0.0};
+  static constexpr ModuleSteerGains steerGains{radial_ka_unit_t{0.039166},
+    frc::DCMotor::radians_per_second_per_volt_t{0.037461}, 0.0_V, 100, 0.0, 0.0};
 
   namespace can {
     static constexpr int FL_DRIVE = 2;
@@ -68,8 +68,8 @@ namespace swerve {
     static constexpr frc::DCMotor SWERVE_MOTOR_FOC{
       frc::DCMotor::Falcon500FOC(1)};
 
-    static constexpr units::meter_t WHEELBASE_LENGTH = 25_in;
-    static constexpr units::meter_t WHEELBASE_WIDTH = 25_in;
+    static constexpr units::meter_t WHEELBASE_LENGTH = 23.5_in;
+    static constexpr units::meter_t WHEELBASE_WIDTH = 23.5_in;
     static constexpr units::meter_t DRIVE_WHEEL_DIAMETER = 4_in;
     static constexpr units::scalar_t DRIVE_GEARING
       = (50.0 / 14.0) * (17.0 / 27.0) * (45.0 / 15.0); // SDS L2
@@ -85,10 +85,10 @@ namespace swerve {
     static constexpr units::radians_per_second_t MAX_ROTATION_SPEED
       = 720_deg_per_s;
 
-    static constexpr double FL_ENCODER_OFFSET = 0;
-    static constexpr double FR_ENCODER_OFFSET = 0;
-    static constexpr double BL_ENCODER_OFFSET = 0;
-    static constexpr double BR_ENCODER_OFFSET = 0;
+    static constexpr double FL_ENCODER_OFFSET = -0.468262;
+    static constexpr double FR_ENCODER_OFFSET = 0.479492;
+    static constexpr double BL_ENCODER_OFFSET = 0.359375;
+    static constexpr double BR_ENCODER_OFFSET = 0.131104;
 
     static constexpr units::ampere_t SLIP_CURRENT = 400_A;
 
