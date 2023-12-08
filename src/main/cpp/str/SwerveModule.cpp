@@ -224,6 +224,58 @@ units::radian_t SwerveModule::GetMotorRotations()
   return drivePosition;
 }
 
+void SwerveModule::SetModuleSteerGains(
+  const constants::swerve::ModuleSteerGains& newGains)
+{
+  currentSteeringGains = newGains;
+  ctre::phoenix6::configs::Slot0Configs steerSlotConfig{};
+  steerSlotConfig.kV = currentSteeringGains.kV.value();
+  steerSlotConfig.kA = currentSteeringGains.kA.value();
+  steerSlotConfig.kS = currentSteeringGains.kS.value();
+  steerSlotConfig.kP = currentSteeringGains.kP;
+  steerSlotConfig.kI = currentSteeringGains.kI;
+  steerSlotConfig.kD = currentSteeringGains.kD;
+  ctre::phoenix::StatusCode status
+    = steerMotor.GetConfigurator().Apply(steerSlotConfig);
+  if (!status.IsOK()) {
+    frc::DataLogManager::Log(
+      fmt::format("Swerve Steer Motor was unable to set new gains! "
+                  "Error: {}, More Info: {}",
+        status.GetName(), status.GetDescription()));
+  }
+}
+
+constants::swerve::ModuleSteerGains SwerveModule::GetCurrentSteerGains() const
+{
+  return currentSteeringGains;
+}
+
+void SwerveModule::SetModuleDriveGains(
+  const constants::swerve::ModuleDriveGains& newGains)
+{
+  currentDrivingGains = newGains;
+  ctre::phoenix6::configs::Slot0Configs driveSlotConfig{};
+  driveSlotConfig.kV = currentDrivingGains.kV.value();
+  driveSlotConfig.kA = currentDrivingGains.kA.value();
+  driveSlotConfig.kS = currentDrivingGains.kS.value();
+  driveSlotConfig.kP = currentDrivingGains.kP;
+  driveSlotConfig.kI = currentDrivingGains.kI;
+  driveSlotConfig.kD = currentDrivingGains.kD;
+  ctre::phoenix::StatusCode status
+    = driveMotor.GetConfigurator().Apply(driveSlotConfig);
+  if (!status.IsOK()) {
+    frc::DataLogManager::Log(
+      fmt::format("Swerve Drive Motor was unable to set new gains! "
+                  "Error: {}, More Info: {}",
+        status.GetName(), status.GetDescription()));
+  }
+}
+
+constants::swerve::ModuleDriveGains SwerveModule::GetCurrentDriveGains() const
+{
+  return currentDrivingGains;
+}
+
 void SwerveModule::ResetPosition() { driveMotor.SetPosition(0_rad); }
 
 void SwerveModule::SetSteerVoltage(units::volt_t volts)

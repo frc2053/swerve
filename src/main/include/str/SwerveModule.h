@@ -79,6 +79,10 @@ public:
   void LockSteerAtZero();
   void PushMode(bool onOff);
   units::radian_t GetMotorRotations();
+  void SetModuleSteerGains(const constants::swerve::ModuleSteerGains& newGains);
+  constants::swerve::ModuleSteerGains GetCurrentSteerGains() const;
+  void SetModuleDriveGains(const constants::swerve::ModuleDriveGains& newGains);
+  constants::swerve::ModuleDriveGains GetCurrentDriveGains() const;
 
   std::array<ctre::phoenix6::BaseStatusSignal*, 6> GetSignals();
   void OptimizeBusSignals();

@@ -14,6 +14,14 @@
 
 namespace units {
 
+template <typename T> bool essentiallyEqual(T a, T b, units::scalar_t epsilon)
+{
+  return units::math::abs(a - b)
+    <= ((units::math::abs(a) > units::math::abs(b) ? units::math::abs(b)
+                                                   : units::math::abs(a))
+      * epsilon);
+}
+
 using kv_unit
   = units::compound_unit<units::compound_unit<units::volts, units::seconds>,
     units::inverse<units::meters>>;

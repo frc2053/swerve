@@ -56,3 +56,13 @@ frc2::CommandPtr DrivebaseSubsystem::MeasureWheelDiam(
 {
   return swerveDrive.MeasureWheelDiam(done, {this});
 }
+
+frc2::CommandPtr DrivebaseSubsystem::TuneSteerPID(std::function<bool()> done)
+{
+  return swerveDrive.TuneSteerPID(done, {this});
+}
+
+frc2::CommandPtr DrivebaseSubsystem::TuneDrivePID(std::function<bool()> done)
+{
+  return swerveDrive.TuneDrivePID(done, {this});
+}

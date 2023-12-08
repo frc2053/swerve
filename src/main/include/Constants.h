@@ -22,6 +22,20 @@ namespace swerve {
     units::scalar_t kP{0};
     units::scalar_t kI{0};
     units::scalar_t kD{0};
+
+    bool operator==(const ModuleDriveGains& rhs) const
+    {
+      return units::essentiallyEqual(kA, rhs.kA, 1e-6)
+        && units::essentiallyEqual(kV, rhs.kV, 1e-6)
+        && units::essentiallyEqual(kS, rhs.kS, 1e-6)
+        && units::essentiallyEqual(kP, rhs.kP, 1e-6)
+        && units::essentiallyEqual(kI, rhs.kI, 1e-6)
+        && units::essentiallyEqual(kD, rhs.kD, 1e-6);
+    }
+    bool operator!=(const ModuleDriveGains& rhs) const
+    {
+      return !operator==(rhs);
+    }
   };
 
   using radial_ka_unit = units::compound_unit<
@@ -36,6 +50,20 @@ namespace swerve {
     units::scalar_t kP{0};
     units::scalar_t kI{0};
     units::scalar_t kD{0};
+
+    bool operator==(const ModuleSteerGains& rhs) const
+    {
+      return units::essentiallyEqual(kA, rhs.kA, 1e-6)
+        && units::essentiallyEqual(kV, rhs.kV, 1e-6)
+        && units::essentiallyEqual(kS, rhs.kS, 1e-6)
+        && units::essentiallyEqual(kP, rhs.kP, 1e-6)
+        && units::essentiallyEqual(kI, rhs.kI, 1e-6)
+        && units::essentiallyEqual(kD, rhs.kD, 1e-6);
+    }
+    bool operator!=(const ModuleSteerGains& rhs) const
+    {
+      return !operator==(rhs);
+    }
   };
 
   static constexpr ModuleDriveGains driveGains{

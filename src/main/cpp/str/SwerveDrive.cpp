@@ -320,6 +320,7 @@ frc2::CommandPtr SwerveDrive::CharacterizeSteerMotors(
       fmt::print("Wrote file...\n");
     })
   );
+  // clang-format on
 }
 
 frc2::CommandPtr SwerveDrive::CharacterizeDriveMotors(
@@ -499,9 +500,12 @@ frc2::CommandPtr SwerveDrive::CharacterizeDriveMotors(
       outFile.close();
     })
   );
+  // clang-format on
 }
 
-frc2::CommandPtr SwerveDrive::SelfTest(frc2::Requirements reqs) {
+frc2::CommandPtr SwerveDrive::SelfTest(frc2::Requirements reqs)
+{
+  // clang-format off
   return frc2::cmd::Sequence(
     frc2::cmd::Run([this] {
       frc::SwerveModuleState forwardState{0_mps, frc::Rotation2d{0_deg}};
@@ -532,9 +536,13 @@ frc2::CommandPtr SwerveDrive::SelfTest(frc2::Requirements reqs) {
       SetModuleStates({goBack, goBack, goBack, goBack}, false, true);
     }, reqs).WithTimeout(2_s)
   );
+  // clang-format on
 }
 
-frc2::CommandPtr SwerveDrive::MeasureWheelDiam(std::function<bool()> done, frc2::Requirements reqs) {
+frc2::CommandPtr SwerveDrive::MeasureWheelDiam(
+  std::function<bool()> done, frc2::Requirements reqs)
+{
+  // clang-format off
   return frc2::cmd::Sequence(
     frc2::cmd::RunOnce([this] {
       for(int i = 0; i < 4; i++) {
@@ -564,4 +572,95 @@ frc2::CommandPtr SwerveDrive::MeasureWheelDiam(std::function<bool()> done, frc2:
       }
     }, reqs)
   );
+  // clang-format on
+}
+
+frc2::CommandPtr SwerveDrive::TuneSteerPID(
+  std::function<bool()> done, frc2::Requirements reqs)
+{
+  // clang-format off
+  std::string tablePrefix = "Drivebase/steerGains/";
+  return frc2::cmd::Sequence(
+    frc2::cmd::RunOnce([tablePrefix] {
+      frc::SmartDashboard::PutNumber(tablePrefix + "setpoint", 0);
+      frc::SmartDashboard::PutNumber(tablePrefix + "kA", 0);
+      frc::SmartDashboard::PutNumber(tablePrefix + "kV", 0);
+      frc::SmartDashboard::PutNumber(tablePrefix + "kS", 0);
+      frc::SmartDashboard::PutNumber(tablePrefix + "kP", 0);
+      frc::SmartDashboard::PutNumber(tablePrefix + "kI", 0);
+      frc::SmartDashboard::PutNumber(tablePrefix + "kD", 0);
+    }, reqs),
+    frc2::cmd::Run([this, tablePrefix] {
+      constants::swerve::ModuleSteerGains newGains {
+        constants::swerve::radial_ka_unit_t{frc::SmartDashboard::GetNumber(tablePrefix + "kA", 0)},
+        frc::DCMotor::radians_per_second_per_volt_t{frc::SmartDashboard::GetNumber(tablePrefix + "kV", 0)},
+        units::volt_t{frc::SmartDashboard::GetNumber(tablePrefix + "kS", 0)},
+        units::scalar_t{frc::SmartDashboard::GetNumber(tablePrefix + "kP", 0)},
+        units::scalar_t{frc::SmartDashboard::GetNumber(tablePrefix + "kI", 0)},
+        units::scalar_t{frc::SmartDashboard::GetNumber(tablePrefix + "kD", 0)},
+      };
+
+      if(newGains != swerveModules[0].GetCurrentSteerGains()) {
+        for(int i = 0; i < 4; i++) {
+          swerveModules[i].SetModuleSteerGains(newGains);
+        }
+      }
+
+      for(int i = 0; i < 4; i++) {
+        swerveModules[i].GoToState(
+          frc::SwerveModuleState{
+            0_mps,
+            frc::Rotation2d{units::degree_t{frc::SmartDashboard::GetNumber(tablePrefix + "setpoint", 0)}}},
+          true,
+          false
+        );
+      }
+    }, reqs).Until(done)
+  );
+  // clang-format on
+}
+
+frc2::CommandPtr SwerveDrive::TuneDrivePID(
+  std::function<bool()> done, frc2::Requirements reqs)
+{
+  // clang-format off
+  std::string tablePrefix = "Drivebase/driveGains/";
+  return frc2::cmd::Sequence(
+    frc2::cmd::RunOnce([tablePrefix] {
+      frc::SmartDashboard::PutNumber(tablePrefix + "setpoint", 0);
+      frc::SmartDashboard::PutNumber(tablePrefix + "kA", 0);
+      frc::SmartDashboard::PutNumber(tablePrefix + "kV", 0);
+      frc::SmartDashboard::PutNumber(tablePrefix + "kS", 0);
+      frc::SmartDashboard::PutNumber(tablePrefix + "kP", 0);
+      frc::SmartDashboard::PutNumber(tablePrefix + "kI", 0);
+      frc::SmartDashboard::PutNumber(tablePrefix + "kD", 0);
+    }, reqs),
+    frc2::cmd::Run([this, tablePrefix] {
+      constants::swerve::ModuleDriveGains newGains {
+        units::ka_unit_t{frc::SmartDashboard::GetNumber(tablePrefix + "kA", 0)},
+        units::kv_unit_t{frc::SmartDashboard::GetNumber(tablePrefix + "kV", 0)},
+        units::volt_t{frc::SmartDashboard::GetNumber(tablePrefix + "kS", 0)},
+        units::scalar_t{frc::SmartDashboard::GetNumber(tablePrefix + "kP", 0)},
+        units::scalar_t{frc::SmartDashboard::GetNumber(tablePrefix + "kI", 0)},
+        units::scalar_t{frc::SmartDashboard::GetNumber(tablePrefix + "kD", 0)},
+      };
+
+      if(newGains != swerveModules[0].GetCurrentDriveGains()) {
+        for(int i = 0; i < 4; i++) {
+          swerveModules[i].SetModuleDriveGains(newGains);
+        }
+      }
+
+      for(int i = 0; i < 4; i++) {
+        swerveModules[i].GoToState(
+          frc::SwerveModuleState{
+            units::feet_per_second_t{frc::SmartDashboard::GetNumber(tablePrefix + "setpoint", 0)},
+            frc::Rotation2d{0_rad}},
+          false,
+          false
+        );
+      }
+    }, reqs).Until(done)
+  );
+  // clang-format on
 }

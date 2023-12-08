@@ -33,6 +33,8 @@ public:
     std::function<bool()> nextStepButton);
   frc2::CommandPtr SelfTest();
   frc2::CommandPtr MeasureWheelDiam(std::function<bool()> done);
+  frc2::CommandPtr TuneSteerPID(std::function<bool()> done);
+  frc2::CommandPtr TuneDrivePID(std::function<bool()> done);
 
 private:
   str::SwerveDrive swerveDrive{};
