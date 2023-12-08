@@ -265,7 +265,7 @@ frc2::CommandPtr SwerveDrive::CharacterizeSteerMotors(
       flSteerModuleData["fast-forward"] = wpi::json::array();
     }),
     frc2::cmd::RunEnd([this] {
-      swerveModules[0].SetSteerVoltage(12_V);
+      swerveModules[0].SetSteerVoltage(7_V);
 
       const auto& flData = swerveModules[0].GetSteerCharData();
 
@@ -289,7 +289,7 @@ frc2::CommandPtr SwerveDrive::CharacterizeSteerMotors(
       flSteerModuleData["fast-backward"] = wpi::json::array();
     }),
     frc2::cmd::RunEnd([this] {
-      swerveModules[0].SetSteerVoltage(-12_V);
+      swerveModules[0].SetSteerVoltage(-7_V);
 
       const auto& flData = swerveModules[0].GetSteerCharData();
 
