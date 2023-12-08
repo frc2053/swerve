@@ -27,17 +27,22 @@ void RobotContainer::ConfigureBindings()
       return std::abs(rotCmd) * rotCmd;
     }));
 
-  driverController.A().OnTrue(driveSub.CharacterizeSteerMotors(
-    [this] { return driverController.GetStartButtonPressed(); }));
-  driverController.B().OnTrue(driveSub.CharacterizeDriveMotors(
-    [this] { return driverController.GetStartButtonPressed(); }));
-  driverController.Y().OnTrue(driveSub.SelfTest());
-  driverController.X().OnTrue(driveSub.MeasureWheelDiam(
-    [this] { return driverController.GetStartButton(); }));
-  driverController.LeftBumper().OnTrue(driveSub.TuneSteerPID(
-    [this] { return driverController.GetStartButtonPressed(); }));
-  driverController.RightBumper().OnTrue(driveSub.TuneDrivePID(
-    [this] { return driverController.GetStartButtonPressed(); }));
+  frc::SmartDashboard::PutBoolean("Drivebase/DoneWithStep", false);
+
+  frc::SmartDashboard::PutData(
+    "Drivebase/CharacterizeSteerMotorsCmd", characterizeSteerCmd.get());
+
+  frc::SmartDashboard::PutData(
+    "Drivebase/CharacterizeDriveMotorsCmd", characterizeDriveCmd.get());
+
+  frc::SmartDashboard::PutData("Drivebase/SelfTestCmd", selfTestCmd.get());
+
+  frc::SmartDashboard::PutData(
+    "Drivebase/MeasureWheelCmd", measureWheelCmd.get());
+
+  frc::SmartDashboard::PutData("Drivebase/TuneSteerCmd", tuneSteerCmd.get());
+
+  frc::SmartDashboard::PutData("Drivebase/TuneDriveCmd", tuneDriveCmd.get());
 }
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand()
