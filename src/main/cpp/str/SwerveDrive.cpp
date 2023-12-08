@@ -72,6 +72,27 @@ void SwerveDrive::Drive(units::meters_per_second_t vx,
   SetChassisSpeeds(newChassisSpeeds, openLoop);
 }
 
+void SwerveDrive::TareEverything()
+{
+  for (int i = 0; i < 4; i++) {
+    swerveModules[i].ResetPosition();
+    modulePositions[i] = swerveModules[i].GetPosition(true);
+  }
+  poseEstimator.ResetPosition(
+    imu.GetRotation2d(), modulePositions, frc::Pose2d{});
+}
+
+void SwerveDrive::SeedFieldRelative()
+{
+  fieldRelativeOffset = GetPose().Rotation().Radians();
+}
+
+void SwerveDrive::SeedFieldRelative(const frc::Pose2d& location)
+{
+  fieldRelativeOffset = location.Rotation().Radians();
+  poseEstimator.ResetPosition(location.Rotation(), modulePositions, location);
+}
+
 void SwerveDrive::SetChassisSpeeds(
   const frc::ChassisSpeeds& newChassisSpeeds, bool openLoop)
 {
@@ -95,7 +116,7 @@ void SwerveDrive::SetModuleStates(
   frc::SwerveDriveKinematics<4>::DesaturateWheelSpeeds(
     static_cast<wpi::array<frc::SwerveModuleState, 4>*>(&desaturatedStates),
     maxSpeed);
-  for (int i = 0; i < swerveModules.size(); i++) {
+  for (size_t i = 0; i < swerveModules.size(); i++) {
     swerveModules[i].GoToState(desaturatedStates[i], openLoop, optimize);
   }
 }
@@ -115,7 +136,7 @@ void SwerveDrive::Log()
   ntField.GetObject("Estimated Robot Pose")->SetPose(GetPose());
   ntField.GetObject("Estimated Robot Modules")->SetPoses(GetModulePoses());
 
-  for (int i = 0; i < swerveModules.size(); i++) {
+  for (size_t i = 0; i < swerveModules.size(); i++) {
     swerveModules[i].Log(i);
   }
 }
@@ -141,7 +162,7 @@ void SwerveDrive::SimulationUpdate()
 
   std::array<SimState, 4> state = swerveSim.GetState();
   std::array<frc::SwerveModulePosition, 4> positions{};
-  for (int i = 0; i < swerveModules.size(); i++) {
+  for (size_t i = 0; i < swerveModules.size(); i++) {
     swerveModules[i].SimulationUpdate(state[i].drivePos, state[i].driveVel,
       state[i].steerPos, state[i].steerVel);
     frc::SwerveModulePosition currentPos = swerveModules[i].GetCachedPosition();
@@ -193,13 +214,13 @@ void SwerveDrive::UpdateOdometry()
   }
 
   for (int i = 0; i < 4; i++) {
-    modulePostions[i] = swerveModules[i].GetPosition(false);
+    modulePositions[i] = swerveModules[i].GetPosition(false);
   }
 
   imuYaw = ctre::phoenix6::BaseStatusSignal::GetLatencyCompensatedValue(
     imu.GetYaw(), imu.GetAngularVelocityZ());
   imuRate = imu.GetAngularVelocityZ().GetValue();
-  poseEstimator.Update(frc::Rotation2d{imuYaw}, modulePostions);
+  poseEstimator.Update(frc::Rotation2d{imuYaw}, modulePositions);
 }
 
 frc2::CommandPtr SwerveDrive::CharacterizeSteerMotors(

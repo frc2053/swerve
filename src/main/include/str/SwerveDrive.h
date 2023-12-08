@@ -38,6 +38,9 @@ public:
   void UpdateOdometry();
   void Log();
   void SimulationUpdate();
+  void TareEverything();
+  void SeedFieldRelative();
+  void SeedFieldRelative(const frc::Pose2d& location);
 
   void Drive(units::meters_per_second_t vx, units::meters_per_second_t vy,
     units::radians_per_second_t omega, bool openLoop);
@@ -50,9 +53,7 @@ public:
     bool optimize = true);
 
   frc::Rotation2d GetHeading() const;
-
   frc::Rotation2d GetGyroYaw() const;
-
   frc::Pose2d GetPose() const;
   frc::Pose2d GetSimPose() const;
   units::ampere_t GetCurrentDraw() const;
@@ -89,7 +90,7 @@ private:
         constants::swerve::can::BR_STEER, constants::swerve::can::BR_ENC,
         constants::swerve::physical::BR_ENCODER_OFFSET, false, true}}};
 
-  std::array<frc::SwerveModulePosition, 4> modulePostions{
+  std::array<frc::SwerveModulePosition, 4> modulePositions{
     swerveModules[0].GetPosition(true),
     swerveModules[1].GetPosition(true),
     swerveModules[2].GetPosition(true),
@@ -97,12 +98,13 @@ private:
   };
 
   frc::SwerveDrivePoseEstimator<4> poseEstimator{
-    constants::swerve::physical::KINEMATICS, frc::Rotation2d{}, modulePostions,
+    constants::swerve::physical::KINEMATICS, frc::Rotation2d{}, modulePositions,
     frc::Pose2d{}};
 
   ctre::phoenix6::hardware::Pigeon2 imu{constants::swerve::can::IMU, "*"};
   units::radian_t imuYaw{};
   units::radians_per_second_t imuRate{};
+  units::radian_t fieldRelativeOffset{};
 
   std::array<ctre::phoenix6::BaseStatusSignal*, 26> allModuleSignals;
 
