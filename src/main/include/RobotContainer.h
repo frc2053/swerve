@@ -40,4 +40,6 @@ private:
   frc2::CommandPtr tuneDriveCmd = driveSub.TuneDrivePID([] {
     return frc::SmartDashboard::GetBoolean("Drivebase/DoneWithStep", false);
   });
+  frc2::CommandPtr resetPositionCmd
+    = driveSub.ResetPosition([] { return frc::Pose2d{}; });
 };

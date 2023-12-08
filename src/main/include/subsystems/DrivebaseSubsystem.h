@@ -23,6 +23,7 @@ public:
   void SimulationPeriodic() override;
 
   void UpdateOdometry();
+  frc2::CommandPtr ResetPosition(std::function<frc::Pose2d()> newPosition);
 
   frc2::CommandPtr DriveFactory(std::function<double()> fow,
     std::function<double()> side, std::function<double()> rot);

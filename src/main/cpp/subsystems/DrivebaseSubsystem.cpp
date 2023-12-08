@@ -21,6 +21,15 @@ void DrivebaseSubsystem::SimulationPeriodic()
 
 void DrivebaseSubsystem::UpdateOdometry() { swerveDrive.UpdateOdometry(); }
 
+frc2::CommandPtr DrivebaseSubsystem::ResetPosition(
+  std::function<frc::Pose2d()> newPosition)
+{
+  return frc2::cmd::RunOnce([this, newPosition] {
+    swerveDrive.TareEverything();
+    swerveDrive.SeedFieldRelative(newPosition());
+  });
+}
+
 frc2::CommandPtr DrivebaseSubsystem::DriveFactory(std::function<double()> fow,
   std::function<double()> side, std::function<double()> rot)
 {

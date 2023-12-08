@@ -220,7 +220,8 @@ void SwerveDrive::UpdateOdometry()
   imuYaw = ctre::phoenix6::BaseStatusSignal::GetLatencyCompensatedValue(
     imu.GetYaw(), imu.GetAngularVelocityZ());
   imuRate = imu.GetAngularVelocityZ().GetValue();
-  poseEstimator.Update(frc::Rotation2d{imuYaw}, modulePositions);
+  poseEstimator.Update(
+    frc::Rotation2d{imuYaw + fieldRelativeOffset}, modulePositions);
 }
 
 frc2::CommandPtr SwerveDrive::CharacterizeSteerMotors(
