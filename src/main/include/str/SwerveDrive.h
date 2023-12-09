@@ -75,6 +75,8 @@ public:
   frc2::CommandPtr TuneDrivePID(
     std::function<bool()> done, frc2::Requirements reqs);
 
+  frc::Field2d& GetField();
+
 private:
   std::array<SwerveModule, 4> swerveModules
     = {SwerveModule{SwerveModuleConstants{constants::swerve::can::FL_DRIVE,
@@ -121,8 +123,6 @@ private:
   units::second_t averageLoopTime = 0_s;
 
   // Logging
-  nt::NetworkTableInstance ntInst{nt::NetworkTableInstance::GetDefault()};
-  std::shared_ptr<nt::NetworkTable> table{ntInst.GetTable("swerveInfo")};
   frc::Field2d ntField{};
 
   // Characterization

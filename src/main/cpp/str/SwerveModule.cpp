@@ -170,7 +170,16 @@ void SwerveModule::GoToState(
     = moduleTurnSpeed * constants::swerve::physical::DRIVE_STEER_COUPLING;
 
   units::radians_per_second_t velocityToGoTo
-    = ConvertWheelVelocityToMotorVelocity(stateToGoTo.speed) - driveRateBackout;
+    = ConvertWheelVelocityToMotorVelocity(stateToGoTo.speed);
+
+  units::radian_t steerMotorError
+    = stateToGoTo.angle.Radians() - steerAngleSignal.GetValue();
+  units::scalar_t cosineScalar = units::math::cos(steerMotorError);
+  if (cosineScalar < 0.0) {
+    cosineScalar = 0.0;
+  }
+  velocityToGoTo = velocityToGoTo * cosineScalar;
+  velocityToGoTo = velocityToGoTo - driveRateBackout;
 
   steerMotor.SetControl(
     steerAngleSetter.WithPosition(stateToGoTo.angle.Radians()));

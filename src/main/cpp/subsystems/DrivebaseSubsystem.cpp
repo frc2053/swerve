@@ -112,6 +112,7 @@ frc2::CommandPtr DrivebaseSubsystem::FollowChoreoTrajectory(
     frc2::cmd::Sequence(
       frc2::cmd::RunOnce([this, pathName] {
         swerveDrive.SeedFieldRelative(pathMap[pathName()].GetInitialPose());
+        swerveDrive.GetField().GetObject("CurrentChoreoTrajectory")->SetPoses(pathMap[pathName()].GetPoses());
       }),
       choreolib::Choreo::ChoreoSwerveCommand(pathMap[pathName()], [this] {
         return swerveDrive.GetPose();
