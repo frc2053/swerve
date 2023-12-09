@@ -72,6 +72,16 @@ namespace swerve {
     frc::DCMotor::radians_per_second_per_volt_t{0.037461}, 0.0_V, 100, 0.0,
     0.0};
 
+  namespace pathplanning {
+    static constexpr units::scalar_t TRANSLATION_P = 1.0;
+    static constexpr units::scalar_t TRANSLATION_I = 0.0;
+    static constexpr units::scalar_t TRANSLATION_D = 0.0;
+
+    static constexpr units::scalar_t ROTATION_P = 1.0;
+    static constexpr units::scalar_t ROTATION_I = 0.0;
+    static constexpr units::scalar_t ROTATION_D = 0.0;
+  } // namespace pathplanning
+
   namespace can {
     static constexpr int FL_DRIVE = 2;
     static constexpr int FL_STEER = 3;

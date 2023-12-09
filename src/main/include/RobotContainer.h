@@ -8,13 +8,14 @@
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/button/CommandXboxController.h>
 
+#include "auto/Autos.h"
 #include "subsystems/DrivebaseSubsystem.h"
 
 class RobotContainer {
 public:
   RobotContainer();
 
-  frc2::CommandPtr GetAutonomousCommand();
+  frc2::Command* GetAutonomousCommand();
   DrivebaseSubsystem& GetDrivebaseSubsystem();
 
 private:
@@ -23,6 +24,8 @@ private:
   frc2::CommandXboxController driverController{0};
 
   DrivebaseSubsystem driveSub;
+
+  autos::Autos autos{driveSub};
 
   frc2::CommandPtr characterizeSteerCmd = driveSub.CharacterizeSteerMotors([] {
     return frc::SmartDashboard::GetBoolean("Drivebase/DoneWithStep", false);

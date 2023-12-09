@@ -48,9 +48,9 @@ void RobotContainer::ConfigureBindings()
     "Drivebase/ResetPosition", resetPositionCmd.get());
 }
 
-frc2::CommandPtr RobotContainer::GetAutonomousCommand()
+frc2::Command* RobotContainer::GetAutonomousCommand()
 {
-  return frc2::cmd::Print("No autonomous command configured");
+  return autos.GetSelectedAutoCmd.get();
 }
 
 DrivebaseSubsystem& RobotContainer::GetDrivebaseSubsystem() { return driveSub; }

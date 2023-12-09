@@ -9,7 +9,13 @@
 #include <frc2/command/SubsystemBase.h>
 
 #include <functional>
+#include <string>
+#include <unordered_map>
 
+#include "Constants.h"
+#include "choreo/lib/Choreo.h"
+#include "choreo/lib/ChoreoTrajectory.h"
+#include "frc/controller/PIDController.h"
 #include "str/SwerveDrive.h"
 
 class DrivebaseSubsystem : public frc2::SubsystemBase {
@@ -36,7 +42,15 @@ public:
   frc2::CommandPtr MeasureWheelDiam(std::function<bool()> done);
   frc2::CommandPtr TuneSteerPID(std::function<bool()> done);
   frc2::CommandPtr TuneDrivePID(std::function<bool()> done);
+  frc2::CommandPtr FollowChoreoTrajectory(
+    std::function<std::string()> pathName);
 
 private:
   str::SwerveDrive swerveDrive{};
+
+  void LoadChoreoTrajectories();
+
+  choreolib::ChoreoControllerFunction choreoController;
+
+  std::unordered_map<std::string, choreolib::ChoreoTrajectory> pathMap;
 };

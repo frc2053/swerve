@@ -7,9 +7,27 @@
 #include <frc2/command/Commands.h>
 #include <frc2/command/SubsystemBase.h>
 
+#include <filesystem>
+
+#include "choreo/lib/Choreo.h"
+#include "frc/Filesystem.h"
+#include "frc/kinematics/ChassisSpeeds.h"
 #include "frc2/command/CommandPtr.h"
 
-DrivebaseSubsystem::DrivebaseSubsystem() = default;
+DrivebaseSubsystem::DrivebaseSubsystem()
+  : choreoController(choreolib::Choreo::ChoreoSwerveController(
+    frc::PIDController{constants::swerve::pathplanning::TRANSLATION_P,
+      constants::swerve::pathplanning::TRANSLATION_I,
+      constants::swerve::pathplanning::TRANSLATION_D},
+    frc::PIDController{constants::swerve::pathplanning::TRANSLATION_P,
+      constants::swerve::pathplanning::TRANSLATION_I,
+      constants::swerve::pathplanning::TRANSLATION_D},
+    frc::PIDController{constants::swerve::pathplanning::ROTATION_P,
+      constants::swerve::pathplanning::ROTATION_I,
+      constants::swerve::pathplanning::ROTATION_D}))
+{
+  LoadChoreoTrajectories();
+}
 
 // This method will be called once per scheduler run
 void DrivebaseSubsystem::Periodic() { swerveDrive.Log(); }
@@ -20,6 +38,16 @@ void DrivebaseSubsystem::SimulationPeriodic()
 }
 
 void DrivebaseSubsystem::UpdateOdometry() { swerveDrive.UpdateOdometry(); }
+
+void DrivebaseSubsystem::LoadChoreoTrajectories()
+{
+  for (const auto& entry : std::filesystem::directory_iterator(
+         frc::filesystem::GetDeployDirectory() + "/choreo/")) {
+    std::string fileName = entry.path().stem().string();
+    fmt::print("Loaded choreo trajectory: {}\n", fileName);
+    pathMap[fileName] = choreolib::Choreo::GetTrajectory(fileName);
+  }
+}
 
 frc2::CommandPtr DrivebaseSubsystem::ResetPosition(
   std::function<frc::Pose2d()> newPosition)
@@ -74,4 +102,34 @@ frc2::CommandPtr DrivebaseSubsystem::TuneSteerPID(std::function<bool()> done)
 frc2::CommandPtr DrivebaseSubsystem::TuneDrivePID(std::function<bool()> done)
 {
   return swerveDrive.TuneDrivePID(done, {this});
+}
+
+frc2::CommandPtr DrivebaseSubsystem::FollowChoreoTrajectory(
+  std::function<std::string()> pathName)
+{
+  // clang-format off
+  return frc2::cmd::Either(
+    frc2::cmd::Sequence(
+      frc2::cmd::RunOnce([this, pathName] {
+        swerveDrive.SeedFieldRelative(pathMap[pathName()].GetInitialPose());
+      }),
+      choreolib::Choreo::ChoreoSwerveCommand(pathMap[pathName()], [this] {
+        return swerveDrive.GetPose();
+      },
+      choreoController,
+      [this](frc::ChassisSpeeds speeds) {
+        swerveDrive.SetChassisSpeeds(speeds, false);
+      },
+      true,
+      {this}),
+      frc2::cmd::RunOnce([this] {
+        swerveDrive.Drive(0_mps, 0_mps, 0_rad_per_s, false);
+      })
+    ),
+    frc2::cmd::Print("ERROR: Choreo path wasn't found in pathMap!!!!\n\n\n\n"),
+    [this, pathName] {
+      return pathMap.contains(pathName());
+    }
+  );
+  // clang-foramt on
 }
