@@ -42,15 +42,38 @@ public:
   frc2::CommandPtr MeasureWheelDiam(std::function<bool()> done);
   frc2::CommandPtr TuneSteerPID(std::function<bool()> done);
   frc2::CommandPtr TuneDrivePID(std::function<bool()> done);
+  frc2::CommandPtr TunePathPid();
+  frc2::CommandPtr DoneTuningPathPids();
   frc2::CommandPtr FollowChoreoTrajectory(
     std::function<std::string()> pathName);
+
+  void SetTranslationPIDs(double p, double i, double d);
+  void SetRotationPIDs(double p, double i, double d);
+  void SetPathTuning(bool onOff);
 
 private:
   str::SwerveDrive swerveDrive{};
 
   void LoadChoreoTrajectories();
 
+  frc::PIDController xTranslationController{
+    constants::swerve::pathplanning::TRANSLATION_P,
+    constants::swerve::pathplanning::TRANSLATION_I,
+    constants::swerve::pathplanning::TRANSLATION_D};
+  frc::PIDController yTranslationController{
+    constants::swerve::pathplanning::TRANSLATION_P,
+    constants::swerve::pathplanning::TRANSLATION_I,
+    constants::swerve::pathplanning::TRANSLATION_D};
+  frc::PIDController rotationController{
+    constants::swerve::pathplanning::ROTATION_P,
+    constants::swerve::pathplanning::ROTATION_I,
+    constants::swerve::pathplanning::ROTATION_D};
+
   choreolib::ChoreoControllerFunction choreoController;
 
   std::unordered_map<std::string, choreolib::ChoreoTrajectory> pathMap;
+  bool pathTuning{false};
+  bool HavePIDsChanged(units::scalar_t transP, units::scalar_t transI,
+    units::scalar_t transD, units::scalar_t rotP, units::scalar_t rotI,
+    units::scalar_t rotD);
 };

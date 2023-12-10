@@ -45,4 +45,6 @@ private:
   });
   frc2::CommandPtr resetPositionCmd
     = driveSub.ResetPosition([] { return frc::Pose2d{}; });
+  frc2::CommandPtr tunePathPidCmd = driveSub.TunePathPid();
+  frc2::CommandPtr donePathTuningCmd = driveSub.DoneTuningPathPids();
 };

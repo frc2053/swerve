@@ -79,8 +79,8 @@ frc2::CommandPtr Choreo::ChoreoSwerveCommand(ChoreoTrajectory trajectory,
 }
 
 ChoreoControllerFunction Choreo::ChoreoSwerveController(
-  frc::PIDController xController, frc::PIDController yController,
-  frc::PIDController rotationController)
+  frc::PIDController& xController, frc::PIDController& yController,
+  frc::PIDController& rotationController)
 {
   rotationController.EnableContinuousInput(-std::numbers::pi, std::numbers::pi);
   return [xController, yController, rotationController](

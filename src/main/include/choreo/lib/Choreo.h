@@ -33,8 +33,8 @@ public:
     std::function<void(frc::ChassisSpeeds)> outputChassisSpeeds,
     bool useAllianceColor, frc2::Requirements requirements = {});
   static ChoreoControllerFunction ChoreoSwerveController(
-    frc::PIDController xController, frc::PIDController yController,
-    frc::PIDController rotationController);
+    frc::PIDController& xController, frc::PIDController& yController,
+    frc::PIDController& rotationController);
 
 private:
 };

@@ -6,6 +6,8 @@
 
 #include <frc2/command/Commands.h>
 
+#include "frc/smartdashboard/SmartDashboard.h"
+
 RobotContainer::RobotContainer() { ConfigureBindings(); }
 
 void RobotContainer::ConfigureBindings()
@@ -46,6 +48,11 @@ void RobotContainer::ConfigureBindings()
 
   frc::SmartDashboard::PutData(
     "Drivebase/ResetPosition", resetPositionCmd.get());
+
+  frc::SmartDashboard::PutData("Drivebase/PathTuningCmd", tunePathPidCmd.get());
+
+  frc::SmartDashboard::PutData(
+    "Drivebase/DonePathTuningCmd", donePathTuningCmd.get());
 }
 
 frc2::Command* RobotContainer::GetAutonomousCommand()

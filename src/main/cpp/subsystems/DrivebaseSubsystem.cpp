@@ -12,25 +12,53 @@
 #include "choreo/lib/Choreo.h"
 #include "frc/Filesystem.h"
 #include "frc/kinematics/ChassisSpeeds.h"
+#include "frc/smartdashboard/SmartDashboard.h"
 #include "frc2/command/CommandPtr.h"
+#include "str/Units.h"
 
 DrivebaseSubsystem::DrivebaseSubsystem()
   : choreoController(choreolib::Choreo::ChoreoSwerveController(
-    frc::PIDController{constants::swerve::pathplanning::TRANSLATION_P,
-      constants::swerve::pathplanning::TRANSLATION_I,
-      constants::swerve::pathplanning::TRANSLATION_D},
-    frc::PIDController{constants::swerve::pathplanning::TRANSLATION_P,
-      constants::swerve::pathplanning::TRANSLATION_I,
-      constants::swerve::pathplanning::TRANSLATION_D},
-    frc::PIDController{constants::swerve::pathplanning::ROTATION_P,
-      constants::swerve::pathplanning::ROTATION_I,
-      constants::swerve::pathplanning::ROTATION_D}))
+    xTranslationController, yTranslationController, rotationController))
 {
   LoadChoreoTrajectories();
 }
 
+bool DrivebaseSubsystem::HavePIDsChanged(units::scalar_t transP,
+  units::scalar_t transI, units::scalar_t transD, units::scalar_t rotP,
+  units::scalar_t rotI, units::scalar_t rotD)
+{
+  return !units::essentiallyEqual(
+           units::scalar_t{xTranslationController.GetP()}, transP, 1e-6)
+    || !units::essentiallyEqual(
+      units::scalar_t{xTranslationController.GetI()}, transI, 1e-6)
+    || !units::essentiallyEqual(
+      units::scalar_t{xTranslationController.GetD()}, transD, 1e-6)
+    || !units::essentiallyEqual(
+      units::scalar_t{rotationController.GetP()}, rotP, 1e-6)
+    || !units::essentiallyEqual(
+      units::scalar_t{rotationController.GetI()}, rotI, 1e-6)
+    || !units::essentiallyEqual(
+      units::scalar_t{rotationController.GetD()}, rotD, 1e-6);
+}
+
 // This method will be called once per scheduler run
-void DrivebaseSubsystem::Periodic() { swerveDrive.Log(); }
+void DrivebaseSubsystem::Periodic()
+{
+  if (pathTuning) {
+    double newTransP = frc::SmartDashboard::GetNumber("Drivebase/TRANS_P", 0);
+    double newTransI = frc::SmartDashboard::GetNumber("Drivebase/TRANS_I", 0);
+    double newTransD = frc::SmartDashboard::GetNumber("Drivebase/TRANS_D", 0);
+    double newRotP = frc::SmartDashboard::GetNumber("Drivebase/ROT_P", 0);
+    double newRotI = frc::SmartDashboard::GetNumber("Drivebase/ROT_I", 0);
+    double newRotD = frc::SmartDashboard::GetNumber("Drivebase/ROT_D", 0);
+    if (HavePIDsChanged(
+          newTransP, newTransI, newTransD, newRotP, newRotI, newRotD)) {
+      SetTranslationPIDs(newTransP, newTransI, newTransD);
+      SetRotationPIDs(newRotP, newRotI, newRotD);
+    }
+  }
+  swerveDrive.Log();
+}
 
 void DrivebaseSubsystem::SimulationPeriodic()
 {
@@ -48,6 +76,19 @@ void DrivebaseSubsystem::LoadChoreoTrajectories()
     pathMap[fileName] = choreolib::Choreo::GetTrajectory(fileName);
   }
 }
+
+void DrivebaseSubsystem::SetTranslationPIDs(double p, double i, double d)
+{
+  xTranslationController.SetPID(p, i, d);
+  yTranslationController.SetPID(p, i, d);
+}
+
+void DrivebaseSubsystem::SetRotationPIDs(double p, double i, double d)
+{
+  rotationController.SetPID(p, i, d);
+}
+
+void DrivebaseSubsystem::SetPathTuning(bool onOff) { pathTuning = onOff; }
 
 frc2::CommandPtr DrivebaseSubsystem::ResetPosition(
   std::function<frc::Pose2d()> newPosition)
@@ -133,4 +174,26 @@ frc2::CommandPtr DrivebaseSubsystem::FollowChoreoTrajectory(
     }
   );
   // clang-foramt on
+}
+
+frc2::CommandPtr DrivebaseSubsystem::TunePathPid() {
+  // clang-foramt off
+  return frc2::cmd::Sequence(
+    frc2::cmd::RunOnce([this] {
+      SetPathTuning(true);
+      frc::SmartDashboard::PutNumber("Drivebase/TRANS_P", xTranslationController.GetP());
+      frc::SmartDashboard::PutNumber("Drivebase/TRANS_I", xTranslationController.GetI());
+      frc::SmartDashboard::PutNumber("Drivebase/TRANS_D", xTranslationController.GetD());
+      frc::SmartDashboard::PutNumber("Drivebase/ROT_P", rotationController.GetP());
+      frc::SmartDashboard::PutNumber("Drivebase/ROT_I", rotationController.GetI());
+      frc::SmartDashboard::PutNumber("Drivebase/ROT_D", rotationController.GetD());
+    })
+  );
+  // clang-foramt on
+}
+
+frc2::CommandPtr DrivebaseSubsystem::DoneTuningPathPids() {
+  return frc2::cmd::RunOnce([this] {
+    SetPathTuning(false);
+  });
 }
