@@ -23,6 +23,7 @@
 
 #include "Constants.h"
 #include "frc/MathUtil.h"
+#include "frc/RobotBase.h"
 #include "frc/RobotController.h"
 #include "frc/smartdashboard/SmartDashboard.h"
 
@@ -33,24 +34,24 @@ SwerveModule::SwerveModule(const SwerveModuleConstants& moduleConstants)
   , steerMotor(moduleConstants.steerMotorCanId, "*")
   , steerEncoder(moduleConstants.steerEncoderCanId, "*")
 {
-  ctre::phoenix::StatusCode driveConfigCode
-    = ConfigureDriveMotor(moduleConstants.invertDrive);
+  ctre::phoenix::StatusCode driveConfigCode = ConfigureDriveMotor(
+    frc::RobotBase::IsReal() ? moduleConstants.invertDrive : false);
   if (!driveConfigCode.IsOK()) {
     frc::DataLogManager::Log(
       fmt::format("Swerve Module ConfigureDriveMotor wasn't ok it was: {}. "
                   "More info: {}",
         driveConfigCode.GetName(), driveConfigCode.GetDescription()));
   }
-  ctre::phoenix::StatusCode steerConfigCode
-    = ConfigureSteerMotor(moduleConstants.invertSteer);
+  ctre::phoenix::StatusCode steerConfigCode = ConfigureSteerMotor(
+    frc::RobotBase::IsReal() ? moduleConstants.invertSteer : false);
   if (!steerConfigCode.IsOK()) {
     frc::DataLogManager::Log(
       fmt::format("Swerve Module ConfigureSteerMotor wasn't ok it was: {}. "
                   "More info: {}",
         steerConfigCode.GetName(), steerConfigCode.GetDescription()));
   }
-  ctre::phoenix::StatusCode steerEncoderCode
-    = ConfigureSteerEncoder(moduleConstants.steerEncoderOffset);
+  ctre::phoenix::StatusCode steerEncoderCode = ConfigureSteerEncoder(
+    frc::RobotBase::IsReal() ? moduleConstants.steerEncoderOffset : 0.0);
   if (!steerEncoderCode.IsOK()) {
     frc::DataLogManager::Log(
       fmt::format("Swerve Module ConfigureSteerEncoder wasn't ok it was: {}. "
@@ -329,12 +330,18 @@ ctre::phoenix::StatusCode SwerveModule::ConfigureDriveMotor(bool invertDrive)
   // Be careful here. Make sure we are controlling in volts as gains will be
   // different depending on control mode.
   ctre::phoenix6::configs::Slot0Configs driveSlotConfig{};
-  driveSlotConfig.kV = currentDrivingGains.kV.value();
-  driveSlotConfig.kA = currentDrivingGains.kA.value();
-  driveSlotConfig.kS = currentDrivingGains.kS.value();
-  driveSlotConfig.kP = currentDrivingGains.kP;
-  driveSlotConfig.kI = currentDrivingGains.kI;
-  driveSlotConfig.kD = currentDrivingGains.kD;
+  driveSlotConfig.kV
+    = frc::RobotBase::IsReal() ? currentDrivingGains.kV.value() : 0.1;
+  driveSlotConfig.kA
+    = frc::RobotBase::IsReal() ? currentDrivingGains.kA.value() : 0.01;
+  driveSlotConfig.kS
+    = frc::RobotBase::IsReal() ? currentDrivingGains.kS.value() : 0.0;
+  driveSlotConfig.kP
+    = frc::RobotBase::IsReal() ? currentDrivingGains.kP : units::scalar_t{.25};
+  driveSlotConfig.kI
+    = frc::RobotBase::IsReal() ? currentDrivingGains.kI : units::scalar_t{0.0};
+  driveSlotConfig.kD
+    = frc::RobotBase::IsReal() ? currentDrivingGains.kD : units::scalar_t{0.0};
   driveConfig.Slot0 = driveSlotConfig;
 
   driveConfig.MotorOutput.NeutralMode
@@ -360,12 +367,12 @@ ctre::phoenix::StatusCode SwerveModule::ConfigureSteerMotor(bool invertSteer)
   // Be careful here. Make sure we are controlling in volts as gains will be
   // different depending on control mode.
   ctre::phoenix6::configs::Slot0Configs steerSlotConfig{};
-  steerSlotConfig.kV = currentSteeringGains.kV.value();
-  steerSlotConfig.kA = currentSteeringGains.kA.value();
-  steerSlotConfig.kS = currentSteeringGains.kS.value();
-  steerSlotConfig.kP = currentSteeringGains.kP;
-  steerSlotConfig.kI = currentSteeringGains.kI;
-  steerSlotConfig.kD = currentSteeringGains.kD;
+  steerSlotConfig.kV = frc::RobotBase::IsReal() ? currentSteeringGains.kV.value() : 0.0;
+  steerSlotConfig.kA = frc::RobotBase::IsReal() ? currentSteeringGains.kA.value() : 0.0;
+  steerSlotConfig.kS = frc::RobotBase::IsReal() ? currentSteeringGains.kS.value() : 0.0;
+  steerSlotConfig.kP = frc::RobotBase::IsReal() ? currentSteeringGains.kP : units::scalar_t{30};
+  steerSlotConfig.kI = frc::RobotBase::IsReal() ? currentSteeringGains.kI : units::scalar_t{0.0};
+  steerSlotConfig.kD = frc::RobotBase::IsReal() ? currentSteeringGains.kD : units::scalar_t{0.25};
   steerConfig.Slot0 = steerSlotConfig;
 
   steerConfig.MotorOutput.NeutralMode

@@ -16,7 +16,7 @@ namespace str {
 
 struct SwerveModuleSim {
   frc::sim::DCMotorSim steerMotor{frc::DCMotor::Falcon500(1),
-    constants::swerve::physical::STEER_GEARING, 0.004_kg_sq_m};
+    constants::swerve::physical::STEER_GEARING, 0.025_kg_sq_m};
   frc::sim::DCMotorSim driveMotor{frc::DCMotor::Falcon500(1),
     constants::swerve::physical::DRIVE_GEARING, 0.025_kg_sq_m};
 };

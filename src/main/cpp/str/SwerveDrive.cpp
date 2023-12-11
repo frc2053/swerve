@@ -160,7 +160,9 @@ void SwerveDrive::SimulationUpdate()
   swerveSim.SetDriveInputs(driveInputs);
   swerveSim.SetSteerInputs(steerInputs);
 
-  swerveSim.Update(frc::TimedRobot::kDefaultPeriod);
+  units::second_t now = frc::Timer::GetFPGATimestamp();
+  swerveSim.Update(now - lastUpdateTimestamp);
+  lastUpdateTimestamp = now;
 
   totalCurrentDraw
     = swerveSim.GetSteerCurrentDraw() + swerveSim.GetDriveCurrentDraw();

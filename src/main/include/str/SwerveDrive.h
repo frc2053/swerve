@@ -116,6 +116,7 @@ private:
   units::ampere_t totalCurrentDraw{0};
   std::array<frc::SwerveModulePosition, 4> lastPositions{};
   frc::Rotation2d lastAngle{};
+  units::second_t lastUpdateTimestamp{frc::Timer::GetFPGATimestamp()};
 
   // Stats for fast update time
   units::second_t lastTime = 0_s;

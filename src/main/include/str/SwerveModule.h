@@ -131,8 +131,13 @@ private:
   ctre::phoenix6::controls::MotionMagicVoltage steerAngleSetter{0_rad};
   ctre::phoenix6::controls::VoltageOut steerVoltageSetter{0_V};
 
+#if defined(__FRC_ROBORIO__)
   ctre::phoenix6::controls::VelocityTorqueCurrentFOC driveVelocitySetter{
     0_rad_per_s};
+#else
+  ctre::phoenix6::controls::VelocityVoltage driveVelocitySetter{0_rad_per_s};
+#endif
+
   ctre::phoenix6::controls::VoltageOut driveVoltageSetter{0_V};
 
   frc::SwerveModuleState currentState{};
