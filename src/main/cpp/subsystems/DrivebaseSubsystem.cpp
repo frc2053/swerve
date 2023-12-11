@@ -155,15 +155,18 @@ frc2::CommandPtr DrivebaseSubsystem::FollowChoreoTrajectory(
         swerveDrive.SeedFieldRelative(pathMap[pathName()].GetInitialPose());
         swerveDrive.GetField().GetObject("CurrentChoreoTrajectory")->SetPoses(pathMap[pathName()].GetPoses());
       }),
-      choreolib::Choreo::ChoreoSwerveCommand(pathMap[pathName()], [this] {
-        return swerveDrive.GetPose();
-      },
-      choreoController,
-      [this](frc::ChassisSpeeds speeds) {
-        swerveDrive.SetChassisSpeeds(speeds, false);
-      },
-      true,
-      {this}),
+      choreolib::Choreo::ChoreoSwerveCommandPtr(
+        pathMap[pathName()], [this] {
+          return swerveDrive.GetPose();
+        },
+        choreoController,
+        [this](frc::ChassisSpeeds speeds) {
+          fmt::print("Speeds: {}, {}, {}\n", speeds.vx.value(), speeds.vy.value(), speeds.omega.value());
+          swerveDrive.SetChassisSpeeds(speeds, false);
+        },
+        true,
+        {this}
+      ),
       frc2::cmd::RunOnce([this] {
         swerveDrive.Drive(0_mps, 0_mps, 0_rad_per_s, false);
       })

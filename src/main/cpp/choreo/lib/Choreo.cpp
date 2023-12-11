@@ -7,6 +7,7 @@
 #include <frc/DriverStation.h>
 #include <frc/Filesystem.h>
 #include <frc/Timer.h>
+#include <frc/smartdashboard/SmartDashboard.h>
 #include <frc2/command/FunctionalCommand.h>
 #include <wpi/MemoryBuffer.h>
 #include <wpi/json.h>
@@ -34,47 +35,25 @@ ChoreoTrajectory Choreo::GetTrajectory(std::string trajName)
   return traj;
 }
 
-frc2::CommandPtr Choreo::ChoreoSwerveCommand(ChoreoTrajectory trajectory,
+frc2::CommandPtr Choreo::ChoreoSwerveCommandPtr(ChoreoTrajectory trajectory,
   std::function<frc::Pose2d()> poseSupplier, frc::PIDController xController,
   frc::PIDController yController, frc::PIDController rotationController,
   std::function<void(frc::ChassisSpeeds)> outputChassisSpeeds,
   bool useAllianceColor, frc2::Requirements requirements)
 {
-  return ChoreoSwerveCommand(trajectory, poseSupplier,
+  return ChoreoSwerveCommandPtr(trajectory, poseSupplier,
     ChoreoSwerveController(xController, yController, rotationController),
     outputChassisSpeeds, useAllianceColor, requirements);
 }
 
-frc2::CommandPtr Choreo::ChoreoSwerveCommand(ChoreoTrajectory trajectory,
+frc2::CommandPtr Choreo::ChoreoSwerveCommandPtr(ChoreoTrajectory trajectory,
   std::function<frc::Pose2d()> poseSupplier,
   ChoreoControllerFunction controller,
   std::function<void(frc::ChassisSpeeds)> outputChassisSpeeds,
   bool useAllianceColor, frc2::Requirements requirements)
 {
-  frc::Timer timer;
-  return frc2::FunctionalCommand([timer]() mutable { timer.Restart(); },
-    [timer, trajectory, poseSupplier, controller, useAllianceColor,
-      outputChassisSpeeds]() mutable {
-      bool mirror = false;
-      if (useAllianceColor) {
-        std::optional<frc::DriverStation::Alliance> alliance
-          = frc::DriverStation::GetAlliance();
-        mirror = alliance.has_value()
-          && alliance.value() == frc::DriverStation::Alliance::kRed;
-      }
-      outputChassisSpeeds(
-        controller(poseSupplier(), trajectory.Sample(timer.Get(), mirror)));
-    },
-    [timer, outputChassisSpeeds](bool interrupted) mutable {
-      timer.Stop();
-      if (interrupted) {
-        outputChassisSpeeds(frc::ChassisSpeeds{});
-      }
-    },
-    [timer, trajectory]() mutable {
-      return timer.HasElapsed(trajectory.GetTotalTime());
-    },
-    requirements)
+  return ChoreoSwerveCommand(trajectory, poseSupplier, controller,
+    outputChassisSpeeds, useAllianceColor, requirements)
     .ToPtr();
 }
 
@@ -88,6 +67,13 @@ ChoreoControllerFunction Choreo::ChoreoSwerveController(
     units::meters_per_second_t xFF = referenceState.velocityX;
     units::meters_per_second_t yFF = referenceState.velocityY;
     units::radians_per_second_t rotationFF = referenceState.angularVelocity;
+
+    frc::SmartDashboard::PutNumber(
+      "Drivebase/TrajectoryRefPoseX", referenceState.x.value());
+    frc::SmartDashboard::PutNumber(
+      "Drivebase/TrajectoryRefPoseY", referenceState.y.value());
+    frc::SmartDashboard::PutNumber(
+      "Drivebase/TrajectoryRefPoseOmega", referenceState.heading.value());
 
     units::meters_per_second_t xFeedback{
       xController.Calculate(pose.X().value(), referenceState.x.value())};

@@ -13,7 +13,7 @@
 
 namespace autos {
 
-enum CommandSelector { DO_NOTHING, THREE_FT_FORWARD, SQUARE };
+enum CommandSelector { DO_NOTHING, THREE_FT_FORWARD, SQUARE, TEST };
 
 class Autos {
 public:
@@ -23,6 +23,7 @@ public:
     chooser.SetDefaultOption("Do Nothing", CommandSelector::DO_NOTHING);
     chooser.AddOption("Three Feet Forward", CommandSelector::THREE_FT_FORWARD);
     chooser.AddOption("Drive in Square", CommandSelector::SQUARE);
+    chooser.AddOption("Test Trajectory", CommandSelector::TEST);
 
     frc::SmartDashboard::PutData("Auto Chooser", &chooser);
   }
@@ -38,6 +39,7 @@ public:
     std::pair{THREE_FT_FORWARD,
       m_driveSub.FollowChoreoTrajectory([] { return "ThreeFeetForward"; })},
     std::pair{
-      SQUARE, m_driveSub.FollowChoreoTrajectory([] { return "Square"; })});
+      SQUARE, m_driveSub.FollowChoreoTrajectory([] { return "Square"; })},
+    std::pair{TEST, m_driveSub.FollowChoreoTrajectory([] { return "Test"; })});
 };
 } // namespace autos
