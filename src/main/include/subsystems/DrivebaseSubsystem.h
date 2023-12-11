@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <frc/controller/ProfiledPIDController.h>
+#include <frc/trajectory/TrapezoidProfile.h>
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/RunCommand.h>
 #include <frc2/command/SubsystemBase.h>
@@ -33,6 +35,10 @@ public:
 
   frc2::CommandPtr DriveFactory(std::function<double()> fow,
     std::function<double()> side, std::function<double()> rot);
+  frc2::CommandPtr TurnToAngleFactory(std::function<double()> fow,
+    std::function<double()> side,
+    std::function<frc::TrapezoidProfile<units::radians>::State()> angleProfile,
+    std::function<bool()> wantsToOverride);
 
   frc2::CommandPtr CharacterizeSteerMotors(
     std::function<bool()> nextStepButton);
@@ -70,6 +76,12 @@ private:
     constants::swerve::pathplanning::ROTATION_D};
 
   choreolib::ChoreoControllerFunction choreoController;
+
+  frc::ProfiledPIDController<units::radians> thetaController{
+    constants::swerve::pathplanning::ROTATION_P,
+    constants::swerve::pathplanning::ROTATION_I,
+    constants::swerve::pathplanning::ROTATION_D,
+    constants::swerve::pathplanning::GLOBAL_THETA_CONTROLLER_CONSTRAINTS};
 
   std::unordered_map<std::string, choreolib::ChoreoTrajectory> pathMap;
   bool pathTuning{false};

@@ -5,6 +5,7 @@
 #include "subsystems/DrivebaseSubsystem.h"
 
 #include <frc2/command/Commands.h>
+#include <frc2/command/ProfiledPIDCommand.h>
 #include <frc2/command/SubsystemBase.h>
 
 #include <filesystem>
@@ -21,6 +22,7 @@ DrivebaseSubsystem::DrivebaseSubsystem()
     xTranslationController, yTranslationController, rotationController))
 {
   LoadChoreoTrajectories();
+  thetaController.EnableContinuousInput(-180_deg, 180_deg);
 }
 
 bool DrivebaseSubsystem::HavePIDsChanged(units::scalar_t transP,
@@ -111,6 +113,25 @@ frc2::CommandPtr DrivebaseSubsystem::DriveFactory(std::function<double()> fow,
     {this})
     .ToPtr()
     .WithName("Drive Factory");
+}
+
+frc2::CommandPtr DrivebaseSubsystem::TurnToAngleFactory(
+  std::function<double()> fow, std::function<double()> side,
+  std::function<frc::TrapezoidProfile<units::radians>::State()> angle,
+  std::function<bool()> wantsToOverride)
+{
+  return frc2::ProfiledPIDCommand<units::radians>(
+    thetaController, [this] { return swerveDrive.GetHeading().Radians(); },
+    angle,
+    [this, fow, side, wantsToOverride](
+      double output, frc::TrapezoidProfile<units::radians>::State state) {
+      swerveDrive.Drive(fow() * constants::swerve::physical::MAX_LINEAR_SPEED,
+        side() * constants::swerve::physical::MAX_LINEAR_SPEED,
+        output * 1_rad_per_s, true);
+    },
+    {this})
+    .Until(wantsToOverride)
+    .WithName("Turn To Angle Factory");
 }
 
 frc2::CommandPtr DrivebaseSubsystem::CharacterizeSteerMotors(

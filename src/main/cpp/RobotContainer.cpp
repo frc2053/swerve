@@ -29,6 +29,70 @@ void RobotContainer::ConfigureBindings()
       return std::abs(rotCmd) * rotCmd;
     }));
 
+  driverController.Y().OnTrue(driveSub.TurnToAngleFactory(
+    [this] {
+      double fwdCmd
+        = frc::ApplyDeadband<double>(-driverController.GetLeftY(), 0.2);
+      return std::abs(fwdCmd) * fwdCmd;
+    },
+    [this] {
+      double sideCmd
+        = frc::ApplyDeadband<double>(-driverController.GetLeftX(), 0.2);
+      return std::abs(sideCmd) * sideCmd;
+    },
+    [this] {
+      return frc::TrapezoidProfile<units::radians>::State{0_deg, 0_deg_per_s};
+    },
+    [this] { return std::abs(driverController.GetRightX()) > 0.2; }));
+
+  driverController.X().OnTrue(driveSub.TurnToAngleFactory(
+    [this] {
+      double fwdCmd
+        = frc::ApplyDeadband<double>(-driverController.GetLeftY(), 0.2);
+      return std::abs(fwdCmd) * fwdCmd;
+    },
+    [this] {
+      double sideCmd
+        = frc::ApplyDeadband<double>(-driverController.GetLeftX(), 0.2);
+      return std::abs(sideCmd) * sideCmd;
+    },
+    [this] {
+      return frc::TrapezoidProfile<units::radians>::State{90_deg, 0_deg_per_s};
+    },
+    [this] { return std::abs(driverController.GetRightX()) > 0.2; }));
+
+  driverController.B().OnTrue(driveSub.TurnToAngleFactory(
+    [this] {
+      double fwdCmd
+        = frc::ApplyDeadband<double>(-driverController.GetLeftY(), 0.2);
+      return std::abs(fwdCmd) * fwdCmd;
+    },
+    [this] {
+      double sideCmd
+        = frc::ApplyDeadband<double>(-driverController.GetLeftX(), 0.2);
+      return std::abs(sideCmd) * sideCmd;
+    },
+    [this] {
+      return frc::TrapezoidProfile<units::radians>::State{-90_deg, 0_deg_per_s};
+    },
+    [this] { return std::abs(driverController.GetRightX()) > 0.2; }));
+
+  driverController.A().OnTrue(driveSub.TurnToAngleFactory(
+    [this] {
+      double fwdCmd
+        = frc::ApplyDeadband<double>(-driverController.GetLeftY(), 0.2);
+      return std::abs(fwdCmd) * fwdCmd;
+    },
+    [this] {
+      double sideCmd
+        = frc::ApplyDeadband<double>(-driverController.GetLeftX(), 0.2);
+      return std::abs(sideCmd) * sideCmd;
+    },
+    [this] {
+      return frc::TrapezoidProfile<units::radians>::State{180_deg, 0_deg_per_s};
+    },
+    [this] { return std::abs(driverController.GetRightX()) > 0.2; }));
+
   frc::SmartDashboard::PutBoolean("Drivebase/DoneWithStep", false);
 
   frc::SmartDashboard::PutData(

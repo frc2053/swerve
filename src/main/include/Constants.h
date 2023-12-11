@@ -7,6 +7,7 @@
 #include <frc/geometry/Translation2d.h>
 #include <frc/kinematics/SwerveDriveKinematics.h>
 #include <frc/system/plant/DCMotor.h>
+#include <frc/trajectory/TrapezoidProfile.h>
 #include <units/angular_acceleration.h>
 #include <units/velocity.h>
 
@@ -77,9 +78,12 @@ namespace swerve {
     static constexpr units::scalar_t TRANSLATION_I = 0.0;
     static constexpr units::scalar_t TRANSLATION_D = 0.0;
 
-    static constexpr units::scalar_t ROTATION_P = 1.0;
+    static constexpr units::scalar_t ROTATION_P = 5.0;
     static constexpr units::scalar_t ROTATION_I = 0.0;
-    static constexpr units::scalar_t ROTATION_D = 0.0;
+    static constexpr units::scalar_t ROTATION_D = 0.5;
+
+    extern const frc::TrapezoidProfile<units::radians>::Constraints
+      GLOBAL_THETA_CONTROLLER_CONSTRAINTS;
   } // namespace pathplanning
 
   namespace can {
@@ -123,6 +127,8 @@ namespace swerve {
         SWERVE_MOTOR_FOC.freeSpeed / DRIVE_GEARING, DRIVE_WHEEL_DIAMETER / 2);
     static constexpr units::radians_per_second_t MAX_ROTATION_SPEED
       = 720_deg_per_s;
+    static constexpr units::radians_per_second_squared_t MAX_ROTATION_ACCEL
+      = 10000_deg_per_s_sq;
 
     static constexpr double FL_ENCODER_OFFSET = -0.468262;
     static constexpr double FR_ENCODER_OFFSET = 0.479492;
