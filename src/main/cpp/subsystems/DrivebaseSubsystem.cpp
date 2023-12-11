@@ -161,7 +161,6 @@ frc2::CommandPtr DrivebaseSubsystem::FollowChoreoTrajectory(
         },
         choreoController,
         [this](frc::ChassisSpeeds speeds) {
-          fmt::print("Speeds: {}, {}, {}\n", speeds.vx.value(), speeds.vy.value(), speeds.omega.value());
           swerveDrive.SetChassisSpeeds(speeds, false);
         },
         true,

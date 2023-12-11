@@ -72,8 +72,8 @@ ChoreoControllerFunction Choreo::ChoreoSwerveController(
       "Drivebase/TrajectoryRefPoseX", referenceState.x.value());
     frc::SmartDashboard::PutNumber(
       "Drivebase/TrajectoryRefPoseY", referenceState.y.value());
-    frc::SmartDashboard::PutNumber(
-      "Drivebase/TrajectoryRefPoseOmega", referenceState.heading.value());
+    frc::SmartDashboard::PutNumber("Drivebase/TrajectoryRefPoseOmega",
+      referenceState.heading.convert<units::degrees>().value());
 
     units::meters_per_second_t xFeedback{
       xController.Calculate(pose.X().value(), referenceState.x.value())};

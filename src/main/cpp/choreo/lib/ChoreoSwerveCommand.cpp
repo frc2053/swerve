@@ -36,7 +36,6 @@ void ChoreoSwerveCommand::Execute()
       && alliance.value() == frc::DriverStation::Alliance::kRed;
   }
   units::second_t currentTrajTime = m_timer.Get();
-  fmt::print("Current Time: {}\n", currentTrajTime.value());
   m_outputChassisSpeeds(
     m_controller(m_pose(), m_traj.Sample(currentTrajTime, mirror)));
 }
@@ -51,6 +50,5 @@ void ChoreoSwerveCommand::End(bool interrupted)
 bool ChoreoSwerveCommand::IsFinished()
 {
   bool isDone = m_timer.HasElapsed(m_traj.GetTotalTime());
-  fmt::print("isDone: {}\n", isDone);
   return isDone;
 }
