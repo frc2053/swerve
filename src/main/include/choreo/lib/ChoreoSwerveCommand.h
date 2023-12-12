@@ -8,6 +8,8 @@
 #include <frc2/command/Command.h>
 #include <frc2/command/CommandHelper.h>
 
+#include <functional>
+
 #include "choreo/lib/ChoreoTrajectory.h"
 
 namespace choreolib {

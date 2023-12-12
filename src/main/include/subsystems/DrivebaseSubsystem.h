@@ -61,6 +61,7 @@ private:
   str::SwerveDrive swerveDrive{};
 
   void LoadChoreoTrajectories();
+  void SetupAutoBuilder();
 
   frc::PIDController xTranslationController{
     constants::swerve::pathplanning::TRANSLATION_P,

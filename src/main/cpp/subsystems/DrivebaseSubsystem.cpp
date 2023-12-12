@@ -7,6 +7,7 @@
 #include <frc2/command/Commands.h>
 #include <frc2/command/ProfiledPIDCommand.h>
 #include <frc2/command/SubsystemBase.h>
+#include <pathplanner/lib/auto/AutoBuilder.h>
 
 #include <filesystem>
 
@@ -21,8 +22,31 @@ DrivebaseSubsystem::DrivebaseSubsystem()
   : choreoController(choreolib::Choreo::ChoreoSwerveController(
     xTranslationController, yTranslationController, rotationController))
 {
+  SetupAutoBuilder();
   LoadChoreoTrajectories();
   thetaController.EnableContinuousInput(-180_deg, 180_deg);
+}
+
+void DrivebaseSubsystem::SetupAutoBuilder()
+{
+  pathplanner::AutoBuilder::configureHolonomic(
+    [this] { return swerveDrive.GetPose(); },
+    [this](frc::Pose2d resetPose) { swerveDrive.SeedFieldRelative(resetPose); },
+    [] { return frc::ChassisSpeeds{}; },
+    [this](frc::ChassisSpeeds speeds) {
+      swerveDrive.SetChassisSpeeds(speeds, false);
+    },
+    pathplanner::HolonomicPathFollowerConfig(
+      pathplanner::PIDConstants{constants::swerve::pathplanning::TRANSLATION_P,
+        constants::swerve::pathplanning::TRANSLATION_I,
+        constants::swerve::pathplanning::TRANSLATION_D},
+      pathplanner::PIDConstants{constants::swerve::pathplanning::ROTATION_P,
+        constants::swerve::pathplanning::ROTATION_I,
+        constants::swerve::pathplanning::ROTATION_D},
+      constants::swerve::physical::MAX_LINEAR_SPEED_FOC,
+      constants::swerve::physical::WHEELBASE_LENGTH / 2,
+      pathplanner::ReplanningConfig{false}),
+    this);
 }
 
 bool DrivebaseSubsystem::HavePIDsChanged(units::scalar_t transP,
