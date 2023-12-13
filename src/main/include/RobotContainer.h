@@ -30,8 +30,8 @@ private:
   frc2::CommandPtr characterizeSteerCmd = driveSub.CharacterizeSteerMotors([] {
     return frc::SmartDashboard::GetBoolean("Drivebase/DoneWithStep", false);
   });
-  frc2::CommandPtr characterizeDriveCmd = driveSub.CharacterizeDriveMotors([] {
-    return frc::SmartDashboard::GetBoolean("Drivebase/DoneWithStep", false);
+  frc2::CommandPtr characterizeDriveCmd = driveSub.CharacterizeDriveMotors([this] {
+    return driverController.GetStartButtonPressed();
   });
   frc2::CommandPtr selfTestCmd = driveSub.SelfTest();
   frc2::CommandPtr measureWheelCmd = driveSub.MeasureWheelDiam([] {
@@ -47,4 +47,5 @@ private:
     = driveSub.ResetPosition([] { return frc::Pose2d{}; });
   frc2::CommandPtr tunePathPidCmd = driveSub.TunePathPid();
   frc2::CommandPtr donePathTuningCmd = driveSub.DoneTuningPathPids();
+  frc2::CommandPtr zeroYawCMD = driveSub.ZeroYawCMD();
 };

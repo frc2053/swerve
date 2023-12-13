@@ -52,6 +52,8 @@ public:
     const std::array<frc::SwerveModuleState, 4>& desiredStates, bool openLoop,
     bool optimize = true);
 
+  void ZeroYaw();
+
   frc::Rotation2d GetHeading() const;
   frc::Rotation2d GetGyroYaw() const;
   frc::Pose2d GetPose() const;

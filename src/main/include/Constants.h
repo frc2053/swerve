@@ -68,7 +68,7 @@ namespace swerve {
   };
 
   static constexpr ModuleDriveGains driveGains{
-    units::ka_unit_t{0.3}, units::kv_unit_t{2.5}, .25_V, 50, 0.0, 0.0};
+    units::ka_unit_t{0.05544}, units::kv_unit_t{0.45}, 0.16889_V, 4.0, 0.0, 0.3};
   static constexpr ModuleSteerGains steerGains{radial_ka_unit_t{0.039166},
     frc::DCMotor::radians_per_second_per_volt_t{0.037461}, 0.0_V, 100, 0.0,
     0.0};
@@ -80,7 +80,7 @@ namespace swerve {
 
     static constexpr units::scalar_t ROTATION_P = 5.0;
     static constexpr units::scalar_t ROTATION_I = 0.0;
-    static constexpr units::scalar_t ROTATION_D = 0.5;
+    static constexpr units::scalar_t ROTATION_D = 0.05;
 
     extern const frc::TrapezoidProfile<units::radians>::Constraints
       GLOBAL_THETA_CONTROLLER_CONSTRAINTS;

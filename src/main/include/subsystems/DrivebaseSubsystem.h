@@ -52,6 +52,7 @@ public:
   frc2::CommandPtr DoneTuningPathPids();
   frc2::CommandPtr FollowChoreoTrajectory(
     std::function<std::string()> pathName);
+  frc2::CommandPtr ZeroYawCMD();
 
   void SetTranslationPIDs(double p, double i, double d);
   void SetRotationPIDs(double p, double i, double d);

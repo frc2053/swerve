@@ -108,6 +108,8 @@ void RobotContainer::ConfigureBindings()
 
   frc::SmartDashboard::PutData("Drivebase/TuneSteerCmd", tuneSteerCmd.get());
 
+  frc::SmartDashboard::PutData("Drivebase/ZeroYawCMD", zeroYawCMD.get());
+
   frc::SmartDashboard::PutData("Drivebase/TuneDriveCmd", tuneDriveCmd.get());
 
   frc::SmartDashboard::PutData(

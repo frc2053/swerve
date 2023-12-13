@@ -657,12 +657,12 @@ frc2::CommandPtr SwerveDrive::TuneDrivePID(
   return frc2::cmd::Sequence(
     frc2::cmd::RunOnce([tablePrefix] {
       frc::SmartDashboard::PutNumber(tablePrefix + "setpoint", 0);
-      frc::SmartDashboard::PutNumber(tablePrefix + "kA", 0);
-      frc::SmartDashboard::PutNumber(tablePrefix + "kV", 0);
-      frc::SmartDashboard::PutNumber(tablePrefix + "kS", 0);
-      frc::SmartDashboard::PutNumber(tablePrefix + "kP", 0);
-      frc::SmartDashboard::PutNumber(tablePrefix + "kI", 0);
-      frc::SmartDashboard::PutNumber(tablePrefix + "kD", 0);
+      frc::SmartDashboard::PutNumber(tablePrefix + "kA", constants::swerve::driveGains.kA.value());
+      frc::SmartDashboard::PutNumber(tablePrefix + "kV", constants::swerve::driveGains.kV.value());
+      frc::SmartDashboard::PutNumber(tablePrefix + "kS", constants::swerve::driveGains.kS.value());
+      frc::SmartDashboard::PutNumber(tablePrefix + "kP", constants::swerve::driveGains.kP.value());
+      frc::SmartDashboard::PutNumber(tablePrefix + "kI", constants::swerve::driveGains.kI.value());
+      frc::SmartDashboard::PutNumber(tablePrefix + "kD", constants::swerve::driveGains.kD.value());
     }, reqs),
     frc2::cmd::Run([this, tablePrefix] {
       constants::swerve::ModuleDriveGains newGains {
@@ -692,4 +692,8 @@ frc2::CommandPtr SwerveDrive::TuneDrivePID(
     }, reqs).Until(done)
   );
   // clang-format on
+}
+
+void SwerveDrive::ZeroYaw(){
+  imu.SetYaw(0_deg);
 }

@@ -32,18 +32,18 @@ public:
     pathplanner::NamedCommands::registerCommand("TestCommandPrint",
       frc2::PrintCommand("Test Print from PP Command").ToPtr());
 
-    GetSelectedAutoCmd = frc2::cmd::Select<CommandSelector>(
-      [this] { return chooser.GetSelected(); },
-      std::pair{DO_NOTHING,
-        frc2::cmd::Print(
-          "ERROR: DO NOTHING AUTO SELECTED! YOU PROBABLY DIDNT MEAN THIS")},
-      std::pair{THREE_FT_FORWARD,
-        m_driveSub.FollowChoreoTrajectory([] { return "ThreeFeetForward"; })},
-      std::pair{
-        SQUARE, m_driveSub.FollowChoreoTrajectory([] { return "Square"; })},
-      std::pair{TEST, m_driveSub.FollowChoreoTrajectory([] { return "Test"; })},
-      std::pair{
-        PATHPLANNER_TEST, pathplanner::PathPlannerAuto{"PPTest"}.ToPtr()});
+    // GetSelectedAutoCmd = frc2::cmd::Select<CommandSelector>(
+    //   [this] { return chooser.GetSelected(); },
+    //   std::pair{DO_NOTHING,
+    //     frc2::cmd::Print(
+    //       "ERROR: DO NOTHING AUTO SELECTED! YOU PROBABLY DIDNT MEAN THIS")},
+    //   std::pair{THREE_FT_FORWARD,
+    //     m_driveSub.FollowChoreoTrajectory([] { return "ThreeFeetForward"; })},
+    //   std::pair{
+    //     SQUARE, m_driveSub.FollowChoreoTrajectory([] { return "Square"; })},
+    //   std::pair{TEST, m_driveSub.FollowChoreoTrajectory([] { return "Test"; })},
+    //   std::pair{
+    //     PATHPLANNER_TEST, pathplanner::PathPlannerAuto{"PPTest"}.ToPtr()});
 
     chooser.SetDefaultOption("Do Nothing", CommandSelector::DO_NOTHING);
     chooser.AddOption("Three Feet Forward", CommandSelector::THREE_FT_FORWARD);
