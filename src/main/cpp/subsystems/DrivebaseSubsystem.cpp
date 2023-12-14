@@ -22,8 +22,8 @@ DrivebaseSubsystem::DrivebaseSubsystem()
   : choreoController(choreolib::Choreo::ChoreoSwerveController(
     xTranslationController, yTranslationController, rotationController))
 {
-  // SetupAutoBuilder();
-  // LoadChoreoTrajectories();
+  SetupAutoBuilder();
+  LoadChoreoTrajectories();
   thetaController.EnableContinuousInput(-180_deg, 180_deg);
 }
 
@@ -192,9 +192,7 @@ frc2::CommandPtr DrivebaseSubsystem::TuneDrivePID(std::function<bool()> done)
 
 frc2::CommandPtr DrivebaseSubsystem::ZeroYawCMD()
 {
- return frc2::cmd::RunOnce([this] {
-  swerveDrive.ZeroYaw();
- });
+  return frc2::cmd::RunOnce([this] { swerveDrive.ZeroYaw(); });
 }
 
 frc2::CommandPtr DrivebaseSubsystem::FollowChoreoTrajectory(

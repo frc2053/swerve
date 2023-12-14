@@ -694,6 +694,4 @@ frc2::CommandPtr SwerveDrive::TuneDrivePID(
   // clang-format on
 }
 
-void SwerveDrive::ZeroYaw(){
-  imu.SetYaw(0_deg);
-}
+void SwerveDrive::ZeroYaw() { imu.SetYaw(0_deg); }
