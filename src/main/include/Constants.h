@@ -67,21 +67,21 @@ namespace swerve {
     }
   };
 
-  static constexpr ModuleDriveGains driveGains{
+  inline static constexpr ModuleDriveGains driveGains{
     units::ka_unit_t{0.0}, units::kv_unit_t{0.0}, 0.16889_V, 10.0, 0.0, 0.0};
-  static constexpr ModuleSteerGains steerGains{radial_ka_unit_t{0},
+  inline static constexpr ModuleSteerGains steerGains{radial_ka_unit_t{0},
     frc::DCMotor::radians_per_second_per_volt_t{0.0}, 0.0_V, 200, 0.0, 0.0};
 
   namespace pathplanning {
     // static constexpr units::scalar_t TRANSLATION_P = 50;
-    static constexpr units::scalar_t TRANSLATION_P = 0;
-    static constexpr units::scalar_t TRANSLATION_I = 0.0;
-    static constexpr units::scalar_t TRANSLATION_D = 0.0;
+    inline static constexpr units::scalar_t TRANSLATION_P = 0;
+    inline static constexpr units::scalar_t TRANSLATION_I = 0.0;
+    inline static constexpr units::scalar_t TRANSLATION_D = 0.0;
 
     // static constexpr units::scalar_t ROTATION_P = 5.0;
-    static constexpr units::scalar_t ROTATION_P = 0.0;
-    static constexpr units::scalar_t ROTATION_I = 0.0;
-    static constexpr units::scalar_t ROTATION_D = 0.0;
+    inline static constexpr units::scalar_t ROTATION_P = 0.0;
+    inline static constexpr units::scalar_t ROTATION_I = 0.0;
+    inline static constexpr units::scalar_t ROTATION_D = 0.0;
     // static constexpr units::scalar_t ROTATION_D = 0.05;
 
     extern const frc::TrapezoidProfile<units::radians>::Constraints
@@ -89,63 +89,66 @@ namespace swerve {
   } // namespace pathplanning
 
   namespace can {
-    static constexpr int FL_DRIVE = 2;
-    static constexpr int FL_STEER = 3;
-    static constexpr int FL_ENC = 4;
+    inline static constexpr int FL_DRIVE = 2;
+    inline static constexpr int FL_STEER = 3;
+    inline static constexpr int FL_ENC = 4;
 
-    static constexpr int FR_DRIVE = 5;
-    static constexpr int FR_STEER = 6;
-    static constexpr int FR_ENC = 7;
+    inline static constexpr int FR_DRIVE = 5;
+    inline static constexpr int FR_STEER = 6;
+    inline static constexpr int FR_ENC = 7;
 
-    static constexpr int BL_DRIVE = 8;
-    static constexpr int BL_STEER = 9;
-    static constexpr int BL_ENC = 10;
+    inline static constexpr int BL_DRIVE = 8;
+    inline static constexpr int BL_STEER = 9;
+    inline static constexpr int BL_ENC = 10;
 
-    static constexpr int BR_DRIVE = 11;
-    static constexpr int BR_STEER = 12;
-    static constexpr int BR_ENC = 13;
+    inline static constexpr int BR_DRIVE = 11;
+    inline static constexpr int BR_STEER = 12;
+    inline static constexpr int BR_ENC = 13;
 
-    static constexpr int IMU = 14;
+    inline static constexpr int IMU = 14;
   } // namespace can
 
   namespace physical {
-    static constexpr frc::DCMotor SWERVE_MOTOR{frc::DCMotor::Falcon500(1)};
-    static constexpr frc::DCMotor SWERVE_MOTOR_FOC{
+    inline static constexpr frc::DCMotor SWERVE_MOTOR{
+      frc::DCMotor::Falcon500(1)};
+    inline static constexpr frc::DCMotor SWERVE_MOTOR_FOC{
       frc::DCMotor::Falcon500FOC(1)};
 
-    static constexpr units::meter_t WHEELBASE_LENGTH = 23.5_in;
-    static constexpr units::meter_t WHEELBASE_WIDTH = 23.5_in;
-    static constexpr units::meter_t DRIVE_WHEEL_DIAMETER = 4_in;
-    static constexpr units::scalar_t DRIVE_GEARING
+    inline static constexpr units::meter_t WHEELBASE_LENGTH = 23.5_in;
+    inline static constexpr units::meter_t WHEELBASE_WIDTH = 23.5_in;
+    inline static constexpr units::meter_t DRIVE_WHEEL_DIAMETER = 4_in;
+    inline static constexpr units::scalar_t DRIVE_GEARING
       = (50.0 / 14.0) * (17.0 / 27.0) * (45.0 / 15.0); // SDS L2
-    static constexpr units::scalar_t STEER_GEARING
+    inline static constexpr units::scalar_t STEER_GEARING
       = (50.0 / 14.0) * (60.0 / 10.0);
-    static constexpr units::scalar_t DRIVE_STEER_COUPLING = (50.0 / 14.0);
-    static constexpr units::meters_per_second_t MAX_LINEAR_SPEED
+    inline static constexpr units::scalar_t DRIVE_STEER_COUPLING
+      = (50.0 / 14.0);
+    inline static constexpr units::meters_per_second_t MAX_LINEAR_SPEED
       = units::ConvertAngularVelocityToLinearVelocity(
         SWERVE_MOTOR.freeSpeed / DRIVE_GEARING, DRIVE_WHEEL_DIAMETER / 2);
-    static constexpr units::meters_per_second_t MAX_LINEAR_SPEED_FOC
+    inline static constexpr units::meters_per_second_t MAX_LINEAR_SPEED_FOC
       = units::ConvertAngularVelocityToLinearVelocity(
         SWERVE_MOTOR_FOC.freeSpeed / DRIVE_GEARING, DRIVE_WHEEL_DIAMETER / 2);
-    static constexpr units::radians_per_second_t MAX_ROTATION_SPEED
+    inline static constexpr units::radians_per_second_t MAX_ROTATION_SPEED
       = 720_deg_per_s;
-    static constexpr units::radians_per_second_squared_t MAX_ROTATION_ACCEL
+    inline static constexpr units::radians_per_second_squared_t
+      MAX_ROTATION_ACCEL
       = 10000_deg_per_s_sq;
 
-    static constexpr double FL_ENCODER_OFFSET = -0.468262;
-    static constexpr double FR_ENCODER_OFFSET = 0.479492;
-    static constexpr double BL_ENCODER_OFFSET = 0.359375;
-    static constexpr double BR_ENCODER_OFFSET = 0.131104;
+    inline static constexpr double FL_ENCODER_OFFSET = -0.468262;
+    inline static constexpr double FR_ENCODER_OFFSET = 0.479492;
+    inline static constexpr double BL_ENCODER_OFFSET = 0.359375;
+    inline static constexpr double BR_ENCODER_OFFSET = 0.131104;
 
-    static constexpr units::ampere_t SLIP_CURRENT = 400_A;
+    inline static constexpr units::ampere_t SLIP_CURRENT = 400_A;
 
-    static constexpr std::array<frc::Translation2d, 4> moduleLocations{
+    inline static constexpr std::array<frc::Translation2d, 4> moduleLocations{
       frc::Translation2d{WHEELBASE_LENGTH / 2, WHEELBASE_WIDTH / 2},
       frc::Translation2d{WHEELBASE_LENGTH / 2, -WHEELBASE_WIDTH / 2},
       frc::Translation2d{-WHEELBASE_LENGTH / 2, WHEELBASE_WIDTH / 2},
       frc::Translation2d{-WHEELBASE_LENGTH / 2, -WHEELBASE_WIDTH / 2}};
 
-    static frc::SwerveDriveKinematics<4> KINEMATICS{moduleLocations[0],
+    inline static frc::SwerveDriveKinematics<4> KINEMATICS{moduleLocations[0],
       moduleLocations[1], moduleLocations[2], moduleLocations[3]};
   } // namespace physical
 } // namespace swerve
