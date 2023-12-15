@@ -12,20 +12,14 @@
     "data": {
       "commands": [
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "sequential",
-                "data": {
-                  "commands": []
-                }
-              }
-            ]
+            "pathName": "ThreeFeetForward"
           }
         }
       ]
     }
   },
-  "folder": null
+  "folder": null,
+  "choreoAuto": true
 }

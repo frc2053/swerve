@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.0,
-      "y": 0.0
+      "x": -2.0563273362629904e-23,
+      "y": 1.1313980103228091e-13
     },
-    "rotation": 0
+    "rotation": 2.095223872924874e-25
   },
   "command": {
     "type": "sequential",
@@ -14,12 +14,12 @@
         {
           "type": "path",
           "data": {
-            "pathName": "PPTest"
+            "pathName": "Square"
           }
         }
       ]
     }
   },
   "folder": null,
-  "choreoAuto": false
+  "choreoAuto": true
 }

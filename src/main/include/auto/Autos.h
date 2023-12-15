@@ -16,13 +16,7 @@
 
 namespace autos {
 
-enum CommandSelector {
-  DO_NOTHING,
-  THREE_FT_FORWARD,
-  SQUARE,
-  TEST,
-  PATHPLANNER_TEST
-};
+enum CommandSelector { DO_NOTHING, THREE_FT_FORWARD, SQUARE, PATHPLANNER_TEST };
 
 class Autos {
 public:
@@ -38,17 +32,14 @@ public:
         frc2::cmd::Print(
           "ERROR: DO NOTHING AUTO SELECTED! YOU PROBABLY DIDNT MEAN THIS")},
       std::pair{THREE_FT_FORWARD,
-        m_driveSub.FollowChoreoTrajectory([] { return "ThreeFeetForward"; })},
-      std::pair{
-        SQUARE, m_driveSub.FollowChoreoTrajectory([] { return "Square"; })},
-      std::pair{TEST, m_driveSub.FollowChoreoTrajectory([] { return "Test"; })},
+        pathplanner::PathPlannerAuto{"ThreeFeetForward"}.ToPtr()},
+      std::pair{SQUARE, pathplanner::PathPlannerAuto{"Square"}.ToPtr()},
       std::pair{
         PATHPLANNER_TEST, pathplanner::PathPlannerAuto{"PPTest"}.ToPtr()});
 
     chooser.SetDefaultOption("Do Nothing", CommandSelector::DO_NOTHING);
     chooser.AddOption("Three Feet Forward", CommandSelector::THREE_FT_FORWARD);
     chooser.AddOption("Drive in Square", CommandSelector::SQUARE);
-    chooser.AddOption("Test Trajectory", CommandSelector::TEST);
     chooser.AddOption("Pathplanner Test", CommandSelector::PATHPLANNER_TEST);
 
     frc::SmartDashboard::PutData("Auto Chooser", &chooser);
