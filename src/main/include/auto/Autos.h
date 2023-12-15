@@ -16,7 +16,13 @@
 
 namespace autos {
 
-enum CommandSelector { DO_NOTHING, THREE_FT_FORWARD, SQUARE, PATHPLANNER_TEST };
+enum CommandSelector {
+  DO_NOTHING,
+  THREE_FT_FORWARD,
+  SQUARE,
+  PATHPLANNER_TEST,
+  CHOREO_TEST
+};
 
 class Autos {
 public:
@@ -35,12 +41,15 @@ public:
         pathplanner::PathPlannerAuto{"ThreeFeetForward"}.ToPtr()},
       std::pair{SQUARE, pathplanner::PathPlannerAuto{"Square"}.ToPtr()},
       std::pair{
-        PATHPLANNER_TEST, pathplanner::PathPlannerAuto{"PPTest"}.ToPtr()});
+        PATHPLANNER_TEST, pathplanner::PathPlannerAuto{"PPTest"}.ToPtr()},
+      std::pair{
+        CHOREO_TEST, pathplanner::PathPlannerAuto{"ChoreoTestPath"}.ToPtr()});
 
     chooser.SetDefaultOption("Do Nothing", CommandSelector::DO_NOTHING);
     chooser.AddOption("Three Feet Forward", CommandSelector::THREE_FT_FORWARD);
     chooser.AddOption("Drive in Square", CommandSelector::SQUARE);
     chooser.AddOption("Pathplanner Test", CommandSelector::PATHPLANNER_TEST);
+    chooser.AddOption("Choreo Test", CommandSelector::CHOREO_TEST);
 
     frc::SmartDashboard::PutData("Auto Chooser", &chooser);
   }
