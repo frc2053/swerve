@@ -46,7 +46,7 @@ SwerveDrive::SwerveDrive()
     allModuleSignals[(i * 6) + 5] = moduleSignals[5]; // drive vol
   }
   allModuleSignals[allModuleSignals.size() - 2] = &imu.GetYaw();
-  allModuleSignals[allModuleSignals.size() - 1] = &imu.GetAngularVelocityZ();
+  allModuleSignals[allModuleSignals.size() - 1] = &imu.GetAngularVelocityZWorld();
 
   for (const auto& signal : allModuleSignals) {
     ctre::phoenix::StatusCode status = signal->SetUpdateFrequency(250_Hz);
@@ -225,8 +225,8 @@ void SwerveDrive::UpdateOdometry()
   }
 
   imuYaw = ctre::phoenix6::BaseStatusSignal::GetLatencyCompensatedValue(
-    imu.GetYaw(), imu.GetAngularVelocityZ());
-  imuRate = imu.GetAngularVelocityZ().GetValue();
+    imu.GetYaw(), imu.GetAngularVelocityZWorld());
+  imuRate = imu.GetAngularVelocityZWorld().GetValue();
   poseEstimator.Update(
     frc::Rotation2d{imuYaw + fieldRelativeOffset}, modulePositions);
 }
