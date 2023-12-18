@@ -128,7 +128,12 @@ private:
   ctre::phoenix6::StatusSignal<units::volt_t> driveVoltageSignal
     = driveMotor.GetMotorVoltage();
 
-  ctre::phoenix6::controls::MotionMagicVoltage steerAngleSetter{0_rad};
+#if defined(__FRC_ROBORIO__)
+  ctre::phoenix6::controls::MotionMagicExpoTorqueCurrentFOC steerAngleSetter{
+    0_rad};
+#else
+  ctre::phoenix6::controls::MotionMagicExpoVoltage steerAngleSetter{0_rad};
+#endif
   ctre::phoenix6::controls::VoltageOut steerVoltageSetter{0_V};
 
 #if defined(__FRC_ROBORIO__)

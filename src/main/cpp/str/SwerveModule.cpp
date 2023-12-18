@@ -393,8 +393,10 @@ ctre::phoenix::StatusCode SwerveModule::ConfigureSteerMotor(bool invertSteer)
     : ctre::phoenix6::signals::InvertedValue::CounterClockwise_Positive;
   steerConfig.ClosedLoopGeneral.ContinuousWrap = true;
   steerConfig.MotionMagic.MotionMagicCruiseVelocity
-    = 200 / constants::swerve::physical::STEER_GEARING;
-  steerConfig.MotionMagic.MotionMagicAcceleration = 100;
+    = 100.0 / constants::swerve::physical::STEER_GEARING;
+  steerConfig.MotionMagic.MotionMagicAcceleration = steerConfig.MotionMagic.MotionMagicCruiseVelocity / static_cast<double>(0.100);
+  steerConfig.MotionMagic.MotionMagicExpo_kV = 0.12 * constants::swerve::physical::STEER_GEARING;
+  steerConfig.MotionMagic.MotionMagicExpo_kA = 0.1;
 
   return steerMotor.GetConfigurator().Apply(steerConfig);
 }
