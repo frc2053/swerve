@@ -21,7 +21,7 @@
                     "isInitialGuess": false,
                     "translationConstrained": true,
                     "headingConstrained": true,
-                    "controlIntervalCount": 3
+                    "controlIntervalCount": 7
                 },
                 {
                     "x": 0.7144,
@@ -38,36 +38,72 @@
                     "timestamp": 0,
                     "x": 0,
                     "y": 0,
-                    "heading": 0,
-                    "velocityX": 4.145417569743214e-38,
-                    "velocityY": 6.853863032616099e-33,
+                    "heading": -7.36629620025835e-41,
+                    "velocityX": 0,
+                    "velocityY": 0,
                     "angularVelocity": 0
                 },
                 {
-                    "timestamp": 0.09375328705352438,
-                    "x": 0.35719999999992935,
-                    "y": 5.503780870649415e-17,
-                    "heading": 4.271745061014452e-13,
-                    "velocityX": 3.8099997474862026,
-                    "velocityY": 5.870493677729499e-16,
-                    "angularVelocity": 4.556369021393423e-12
+                    "timestamp": 0.08816756233401735,
+                    "x": 0.05953333720089794,
+                    "y": -1.302233955937227e-37,
+                    "heading": 9.419645826075812e-24,
+                    "velocityX": 0.6752294792427126,
+                    "velocityY": -1.4769958499782681e-36,
+                    "angularVelocity": 1.0683808565166963e-22
                 },
                 {
-                    "timestamp": 0.18750657410704877,
+                    "timestamp": 0.1763351246680347,
+                    "x": 0.1786000077351289,
+                    "y": -3.852561288692163e-37,
+                    "heading": 2.775063905363483e-23,
+                    "velocityX": 1.3504589146193497,
+                    "velocityY": -2.892587246831987e-36,
+                    "angularVelocity": 2.079107737863605e-22
+                },
+                {
+                    "timestamp": 0.26450268700205204,
+                    "x": 0.3572,
+                    "y": -7.460132311545596e-37,
+                    "heading": 5.0448068152374706e-23,
+                    "velocityX": 2.025688218397783,
+                    "velocityY": -4.091717847393122e-36,
+                    "angularVelocity": 2.574350950850942e-22
+                },
+                {
+                    "timestamp": 0.3526702493360694,
+                    "x": 0.5357999922648712,
+                    "y": -3.854591180756815e-37,
+                    "heading": 2.102904494761297e-23,
+                    "velocityX": 2.025688218397783,
+                    "velocityY": 4.089414895971812e-36,
+                    "angularVelocity": -3.336718706014732e-22
+                },
+                {
+                    "timestamp": 0.44083781167008673,
+                    "x": 0.6548666627991021,
+                    "y": 1.5697817849771205e-37,
+                    "heading": 5.417343857780652e-24,
+                    "velocityX": 1.3504589146193497,
+                    "velocityY": 6.152341793563355e-36,
+                    "angularVelocity": -1.770684427332289e-22
+                },
+                {
+                    "timestamp": 0.5290053740041041,
                     "x": 0.7144,
-                    "y": -3.909869447998581e-41,
-                    "heading": 3.2392155079140417e-31,
-                    "velocityX": 3.80999974748771,
-                    "velocityY": -5.870493677729215e-16,
-                    "angularVelocity": -4.556369021393449e-12
+                    "y": -9.550017266543155e-53,
+                    "heading": 0,
+                    "velocityX": 0.6752294792427126,
+                    "velocityY": -1.7804557453317906e-36,
+                    "angularVelocity": -6.144364118842374e-23
                 },
                 {
-                    "timestamp": 0.28125986116057317,
+                    "timestamp": 0.6171729363381214,
                     "x": 0.7144,
                     "y": 0,
                     "heading": 0,
-                    "velocityX": -6.335778872049254e-28,
-                    "velocityY": 0,
+                    "velocityX": 0,
+                    "velocityY": 1.0831666105933559e-51,
                     "angularVelocity": 0
                 }
             ],
@@ -77,14 +113,14 @@
                         "first"
                     ],
                     "type": "StopPoint",
-                    "uuid": "7869362c-929c-4d73-a095-5483404b8696"
+                    "uuid": "9595bf86-56e6-4a4b-98c6-76489ef5c3ad"
                 },
                 {
                     "scope": [
                         "last"
                     ],
                     "type": "StopPoint",
-                    "uuid": "e0df2d08-3efc-46a7-ad3c-1f974e98dab5"
+                    "uuid": "f1a182ed-99dc-4cf4-a021-6db9514d8f9a"
                 }
             ],
             "usesControlIntervalGuessing": true,
@@ -99,7 +135,7 @@
                     "isInitialGuess": false,
                     "translationConstrained": true,
                     "headingConstrained": true,
-                    "controlIntervalCount": 4
+                    "controlIntervalCount": 40
                 },
                 {
                     "x": 0,
@@ -108,7 +144,7 @@
                     "isInitialGuess": false,
                     "translationConstrained": true,
                     "headingConstrained": true,
-                    "controlIntervalCount": 4
+                    "controlIntervalCount": 40
                 },
                 {
                     "x": 1,
@@ -117,7 +153,7 @@
                     "isInitialGuess": false,
                     "translationConstrained": true,
                     "headingConstrained": true,
-                    "controlIntervalCount": 4
+                    "controlIntervalCount": 40
                 },
                 {
                     "x": 1,
@@ -126,7 +162,7 @@
                     "isInitialGuess": false,
                     "translationConstrained": true,
                     "headingConstrained": true,
-                    "controlIntervalCount": 4
+                    "controlIntervalCount": 40
                 },
                 {
                     "x": 0,
@@ -299,28 +335,28 @@
                         "first"
                     ],
                     "type": "StopPoint",
-                    "uuid": "7d96b39d-1115-4eee-8815-d891ef121430"
+                    "uuid": "fc698149-c6fc-401c-a55e-d5961c925f39"
                 },
                 {
                     "scope": [
                         "last"
                     ],
                     "type": "StopPoint",
-                    "uuid": "b044364e-2c33-4a67-9dfd-5bd3e26caa2c"
+                    "uuid": "0afa2d6e-9c03-4b33-907c-45e16e25bef7"
                 },
                 {
                     "scope": [
                         1
                     ],
                     "type": "StopPoint",
-                    "uuid": "320e70c4-139f-44d2-83fc-9141ffaf7330"
+                    "uuid": "60f7b3bb-aa1c-4208-b16d-723a31800153"
                 },
                 {
                     "scope": [
                         2
                     ],
                     "type": "StopPoint",
-                    "uuid": "e96d4aa0-2fd0-4656-8653-c2584ae5fbe7"
+                    "uuid": "cee936e6-8a15-439f-b9be-4212f6331691"
                 },
                 {
                     "scope": [
@@ -328,7 +364,7 @@
                         3
                     ],
                     "type": "StraightLine",
-                    "uuid": "cbf7ce5b-01c5-4b62-b607-60dd19ca63a9"
+                    "uuid": "ed30f3c6-70b8-428e-9774-35331369bd20"
                 },
                 {
                     "scope": [
@@ -336,49 +372,49 @@
                         4
                     ],
                     "type": "StraightLine",
-                    "uuid": "5c38e2ac-c01f-4e56-bea2-61f97cd41103"
+                    "uuid": "629f1546-fd32-4316-af46-4e041c529f91"
                 },
                 {
                     "scope": [
                         1
                     ],
                     "type": "StopPoint",
-                    "uuid": "c1ce6f05-889e-46b1-be5a-77cd032d5ccc"
+                    "uuid": "2a11f398-483f-40ee-9bc4-28ee5ed044a4"
                 },
                 {
                     "scope": [
                         2
                     ],
                     "type": "StopPoint",
-                    "uuid": "09c6c9df-0082-4108-b3d8-93f69f933f53"
+                    "uuid": "10ae27cb-e3f1-4669-a638-e3da513f1ca1"
                 },
                 {
                     "scope": [
                         3
                     ],
                     "type": "StopPoint",
-                    "uuid": "7e299fc8-3688-4d77-9432-28515d7bd6a0"
+                    "uuid": "7402f192-31ec-4dd9-8b9d-122294dc0d28"
                 },
                 {
                     "scope": [
                         1
                     ],
                     "type": "WptZeroVelocity",
-                    "uuid": "46e4e90b-ab71-4c1e-9b05-5af9bd68dbd1"
+                    "uuid": "78071c43-91c1-4436-b00c-eb579ea69071"
                 },
                 {
                     "scope": [
                         2
                     ],
                     "type": "WptZeroVelocity",
-                    "uuid": "e9f09b5f-0ea8-4522-a022-de8cf5fe9729"
+                    "uuid": "9cb7ce3f-88e5-4435-8aa2-70abb2e97d9c"
                 },
                 {
                     "scope": [
                         3
                     ],
                     "type": "WptZeroVelocity",
-                    "uuid": "639aba3d-5a40-4615-a543-5831f332e4c2"
+                    "uuid": "0052e0f6-c8aa-4a85-b90d-76e748b19704"
                 }
             ],
             "usesControlIntervalGuessing": true,
@@ -393,7 +429,7 @@
                     "isInitialGuess": false,
                     "translationConstrained": true,
                     "headingConstrained": true,
-                    "controlIntervalCount": 25
+                    "controlIntervalCount": 40
                 },
                 {
                     "x": 3.1006104946136475,
@@ -402,7 +438,7 @@
                     "isInitialGuess": false,
                     "translationConstrained": true,
                     "headingConstrained": false,
-                    "controlIntervalCount": 15
+                    "controlIntervalCount": 40
                 },
                 {
                     "x": 6.772712707519531,
@@ -411,7 +447,7 @@
                     "isInitialGuess": false,
                     "translationConstrained": true,
                     "headingConstrained": true,
-                    "controlIntervalCount": 12
+                    "controlIntervalCount": 40
                 },
                 {
                     "x": 4.432966232299805,
@@ -420,7 +456,7 @@
                     "isInitialGuess": false,
                     "translationConstrained": true,
                     "headingConstrained": false,
-                    "controlIntervalCount": 28
+                    "controlIntervalCount": 40
                 },
                 {
                     "x": 1.7899192571640015,
@@ -429,7 +465,7 @@
                     "isInitialGuess": false,
                     "translationConstrained": true,
                     "headingConstrained": true,
-                    "controlIntervalCount": 9
+                    "controlIntervalCount": 40
                 },
                 {
                     "x": 2.851470947265625,
@@ -1259,14 +1295,14 @@
                         "first"
                     ],
                     "type": "StopPoint",
-                    "uuid": "67e6b9df-dff4-40b3-be72-7c518a4d0f2a"
+                    "uuid": "81e64d6a-d25d-4c3f-99d7-f8b61f65b4c0"
                 },
                 {
                     "scope": [
                         "last"
                     ],
                     "type": "StopPoint",
-                    "uuid": "0b145d03-b3fd-4f0f-9cde-fc6ea98f3916"
+                    "uuid": "9bc31bd8-8b01-402b-84d5-d4dcb1d17472"
                 },
                 {
                     "scope": [
@@ -1274,14 +1310,14 @@
                         2
                     ],
                     "type": "ZeroAngularVelocity",
-                    "uuid": "16626a50-e3a2-4680-9f69-f44a1eec6d39"
+                    "uuid": "400c90d0-1056-489f-a4c6-0f9334c2962c"
                 },
                 {
                     "scope": [
                         4
                     ],
                     "type": "StopPoint",
-                    "uuid": "230772e9-4e71-466b-883e-4c6fed4e0e36"
+                    "uuid": "ad513110-8d38-48b4-b216-6f314c13b1ec"
                 }
             ],
             "usesControlIntervalGuessing": true,
