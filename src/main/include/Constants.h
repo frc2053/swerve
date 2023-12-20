@@ -68,21 +68,18 @@ namespace swerve {
   };
 
   inline static constexpr ModuleDriveGains driveGains{
-    units::ka_unit_t{0.0}, units::kv_unit_t{0.0}, 0.16889_V, 10.0, 0.0, 0.0};
+    units::ka_unit_t{0.0}, units::kv_unit_t{0.0}, 3_V, 10.0, 0.0, 0.05};
   inline static constexpr ModuleSteerGains steerGains{radial_ka_unit_t{0},
-    frc::DCMotor::radians_per_second_per_volt_t{0.0}, 0.0_V, 200, 0.0, 0.0};
+    frc::DCMotor::radians_per_second_per_volt_t{0.0}, 0.0_V, 150, 0.0, 50.0};
 
   namespace pathplanning {
-    // static constexpr units::scalar_t TRANSLATION_P = 50;
-    inline static constexpr units::scalar_t TRANSLATION_P = 0;
+    inline static constexpr units::scalar_t TRANSLATION_P = 10.0;
     inline static constexpr units::scalar_t TRANSLATION_I = 0.0;
     inline static constexpr units::scalar_t TRANSLATION_D = 0.0;
 
-    // static constexpr units::scalar_t ROTATION_P = 5.0;
-    inline static constexpr units::scalar_t ROTATION_P = 0.0;
+    inline static constexpr units::scalar_t ROTATION_P = 5.0;
     inline static constexpr units::scalar_t ROTATION_I = 0.0;
-    inline static constexpr units::scalar_t ROTATION_D = 0.0;
-    // static constexpr units::scalar_t ROTATION_D = 0.05;
+    inline static constexpr units::scalar_t ROTATION_D = 0.05;
 
     extern const frc::TrapezoidProfile<units::radians>::Constraints
       GLOBAL_THETA_CONTROLLER_CONSTRAINTS;
